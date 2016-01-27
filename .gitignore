@@ -26,3 +26,13 @@
 *.exe
 *.out
 *.app
+*.opensdf
+*.lastbuildstate
+*.tlog
+*.idb
+*.pdb
+*.log
+*.ilk
+*.sdf
+*.suo
+*.filters
