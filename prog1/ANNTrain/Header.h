@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <regex>
 
 using namespace std;
 
@@ -13,7 +14,8 @@ bool CheckArguments(int argc);
 class ParameterFileReader
 {
 	public:
-		void ParseParameterFile();
+
+		void ParseParameterFile(string fileName);
 };
 
 class CSVFileReader
