@@ -3,6 +3,7 @@
 
 int main(int argc, char *argv[])
 {
+	InputParameters inputParams;
 	CSVFileReader csvFileReader;
 	ParameterFileReader paramFileReader;
 	string parameterFileName;
@@ -17,10 +18,10 @@ int main(int argc, char *argv[])
 		parameterFileName = string(argv[1]);
 	}
 
-	paramFileReader.ParseParameterFile(parameterFileName);
+	inputParams = paramFileReader.ParseParameterFile(parameterFileName);
 
 	// replace with correct commandline argument (Marcus)------------------------
-	csvFileReader.filename = "PDSI_BH_1978-2015.csv";
+	csvFileReader.filename = inputParams.DataFileName;
 	// -------------------------------------------------------------------------
 
 	csvFileReader.ReadDataFile(csvFileReader.records, csvFileReader.headings,
