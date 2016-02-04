@@ -1,5 +1,21 @@
 #include "Header.h"
 
+void CSVFileReader::GetRandValues(vector<vector<string>> &randRecords, \
+	vector<vector<string>> records, int rowCount, vector<int> randRows, \
+	int trainingSize)
+{
+	int value = 0;
+
+	for (int i = 0; i < trainingSize; i++)
+	{
+		value = rand() % rowCount - 1;
+		randRows.push_back(value);
+		randRecords.push_back(records[value]);
+	}
+
+
+}
+
 int CSVFileReader::getRows(string filename)
 {
 	ifstream csvFile;
