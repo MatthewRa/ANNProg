@@ -20,8 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Neuron.cpp" />
+    <ClCompile Include="ParameterFileReader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ANNTest.h" />
     <ClInclude Include="Header.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
