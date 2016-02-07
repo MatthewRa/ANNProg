@@ -149,7 +149,7 @@ void CSVFileReader::normalize(vector<string> &toBeInserted,double minBurned,
 	string normalizedString = static_cast<ostringstream*>(&(ostringstream() << normalBurn))->str();
 	toBeInserted[1] = normalizedString;
 
-	double temp2 = 0;
+	temp2 = 0;
 	double normalPredicted = 0;
 
 	for (int values = 2; values < 14; values++)
@@ -174,6 +174,4 @@ void CSVFileReader::findminMax(double temp2, double &minBurned, double &maxBurne
 	{
 		maxBurned = temp2;
 	}
-
-
 }
