@@ -20,12 +20,12 @@ int main(int argc, char *argv[])
 
 	inputParams = paramFileReader.ParseParameterFile(parameterFileName);
 
-	// replace with correct commandline argument (Marcus)------------------------
 	csvFileReader.filename = inputParams.DataFileName;
-	// -------------------------------------------------------------------------
 
-	//csvFileReader.ReadDataFile(csvFileReader.records, csvFileReader.headings,
-	//						   csvFileReader.filename);
+	csvFileReader.ReadDataFile(csvFileReader.records, 
+							   csvFileReader.normalizedRecords,
+							   csvFileReader.headings,
+							   csvFileReader.filename);
 
 	if (csvFileReader.records.empty() == true ||
 		csvFileReader.headings.empty() == true)
