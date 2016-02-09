@@ -46,9 +46,9 @@ class ParameterFileReader
 class CSVFileReader
 {
 	public:
-		vector<vector<string>> records;
-		vector<vector<string>> randRecords;
-		vector<vector<string>> normalizedRecords;
+		vector<vector<string>> Records;
+		vector<vector<string>> RandRecords;
+		vector<vector<string>> NormalizedRecords;
 		vector<string> headings;
 		string filename;
 		vector<int> randRows;

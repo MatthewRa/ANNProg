@@ -48,19 +48,14 @@ class ParameterFileReader
 class CSVFileReader
 {
 	public:
-		vector<vector<string>> records;
-		vector<vector<string>> randRecords;
-		vector<vector<string>> normalizedRecords;
+		vector<vector<double>> Records;
+		vector<vector<double>> RandRecords;
 		vector<string> headings;
-		vector<int> randRows;
 
 		// ReadDataFile destroys the passed in vectors content
 		void ReadDataFile(string filename);
 
 		void RandomizeValues();
-
-		void Normalize(vector<string> &toBeInserted, double minBurned,
-			double maxBurned);
 
 	private:
 		int GetRows(string filename);

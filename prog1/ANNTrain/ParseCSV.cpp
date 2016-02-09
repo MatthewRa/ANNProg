@@ -2,10 +2,10 @@
 
 void CSVFileReader::RandomizeValues()
 {
-	randRecords = records;
+	RandRecords = Records;
 	srand(time(0));
 
-	random_shuffle(begin(randRecords), end(randRecords));
+	random_shuffle(begin(RandRecords), end(RandRecords));
 }
 
 int CSVFileReader::GetRows(string filename)
@@ -36,6 +36,9 @@ void CSVFileReader::ReadDataFile(string filename)
 	int csvRows = GetRows(filename);
 	double minBurned = 0;
 	double maxBurned = 0;
+	double minPDSI = 0;
+	double maxPDSI = 0;
+	bool firstValue = true;
 	
 
 	// open and error check file
@@ -47,7 +50,7 @@ void CSVFileReader::ReadDataFile(string filename)
 	}
 
 	//empty the passed in vectors
-	records.clear();
+	Records.clear();
 	headings.clear();
 
 	getline(csvFile, currentRow); // ignore file heading line
@@ -66,7 +69,7 @@ void CSVFileReader::ReadDataFile(string filename)
 	}
 
 	// vector for processing before being pushed onto records vector
-	vector<string> toBeInserted;
+	vector<double> toBeInserted;
 
 	for (int row = 0; row < csvRows; row++)
 	{
@@ -81,87 +84,62 @@ void CSVFileReader::ReadDataFile(string filename)
 		// push each value in the row onto the processing vector
 		while (getline(streamcurrentRow, insert, ','))
 		{
-			toBeInserted.push_back(insert);
+			const char* temp = insert.c_str();
+
+			toBeInserted.push_back(atof(temp));
 		}
 
 		// check for min and max burned anchorage
-		const char* temp = toBeInserted[1].c_str();
-		double temp2 = atoi(temp);
-		FindMinMax(temp2, minBurned, maxBurned);
+		FindMinMax(toBeInserted[1], minBurned, maxBurned);
+
+		// find min and max PDSI
+		for (int index = 2; index < toBeInserted.size(); index++)
+		{
+			if (firstValue)
+			{
+				minPDSI = toBeInserted[index];
+				maxPDSI = toBeInserted[index];
+				firstValue = false;
+			}
+			FindMinMax(toBeInserted[index], minPDSI, maxPDSI);
+		}
 
 		// push processing vector onto final records vector
-		records.push_back(toBeInserted);
+		Records.push_back(toBeInserted);
 
 	}
 
 	// normalize record vectors and store in new vector
-	for (int rows = 0; rows < records.size(); rows++)
+	for (int row = 0; row < Records.size(); row++)
 	{
+		for (int column = 1; column < toBeInserted.size(); column++)
+		{
+			if (column == 1)
+			{
+				double normalizedValue = (Records[row][column] - minBurned) / (maxBurned - minBurned);
 
-		//normalize the processing vector
-		Normalize(toBeInserted, minBurned, maxBurned);
-		normalizedRecords.push_back(toBeInserted);
-	}
+				Records[row][column] = normalizedValue;
+			}
+			else
+			{
+				double normalizedValue = (Records[row][column] - minPDSI) / (maxPDSI - minPDSI);
 
-	// prints out the vectors for testing
-	/*
-	for (std::vector<std::vector<int>>::size_type i = 0; i < records.size(); i++)
-	{
-		cout << "Vector row number: " << i << endl;
-		for (std::vector<std::vector<int>>::size_type j = 0; j < records[i].size(); j++)
-			cout << records[i][j] << ' ';
-		cout << endl << endl;
+				Records[row][column] = normalizedValue;
+			}
+		}
 	}
-
-	for (std::vector<std::vector<int>>::size_type i = 0; i < normalizedRecords.size(); i++)
-	{
-		cout << "Normalized vector row number: " << i << endl;
-		for (std::vector<std::vector<int>>::size_type j = 0; j < normalizedRecords[i].size(); j++)
-			cout << normalizedRecords[i][j] << ' ';
-		cout << endl << endl;
-	}
-	*/
 
 	csvFile.close();
 }
 
-void CSVFileReader::Normalize(vector<string> &toBeInserted,double minBurned,
-	double maxBurned)
+void CSVFileReader::FindMinMax(double temp2, double &min, double &max)
 {
-	double minPredicted = -10;
-	double maxPredicted = 10;
-
-	const char* temp = toBeInserted[1].c_str();
-	double temp2 = atoi(temp);
-
-	double normalBurn = (temp2 - minBurned) / (maxBurned - minBurned);
-	// next line taken from http://www.cplusplus.com/articles/D9j2Nwbp/
-	string normalizedString = static_cast<ostringstream*>(&(ostringstream() << normalBurn))->str();
-	toBeInserted[1] = normalizedString;
-
-	temp2 = 0;
-	double normalPredicted = 0;
-
-	for (int values = 2; values < 14; values++)
+	if (temp2 <= min)
 	{
-		const char* temp = toBeInserted[values].c_str();
-		temp2 = atoi(temp);
-		normalPredicted = (temp2 - minBurned) / (maxBurned - minBurned);
-		// next line taken from http://www.cplusplus.com/articles/D9j2Nwbp/
-		normalizedString = static_cast<ostringstream*>(&(ostringstream() << normalPredicted))->str();
-		toBeInserted[values] = normalizedString;
-
+		min = temp2;
 	}
-}
-
-void CSVFileReader::FindMinMax(double temp2, double &minBurned, double &maxBurned)
-{
-	if (temp2 < minBurned)
+	if (temp2 >= max)
 	{
-		minBurned = temp2;
-	}
-	if (temp2 > maxBurned)
-	{
-		maxBurned = temp2;
+		max = temp2;
 	}
 }
