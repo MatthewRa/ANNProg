@@ -1,22 +1,14 @@
 #include "Header.h"
 
-void CSVFileReader::GetRandValues(vector<vector<string>> &randRecords, \
-	vector<vector<string>> records, int rowCount, vector<int> randRows, \
-	int trainingSize)
+void CSVFileReader::RandomizeValues()
 {
-	int value = 0;
+	randRecords = records;
+	srand(time(0));
 
-	for (int i = 0; i < trainingSize; i++)
-	{
-		value = rand() % rowCount - 1;
-		randRows.push_back(value);
-		randRecords.push_back(records[value]);
-	}
-
-
+	random_shuffle(begin(randRecords), end(randRecords));
 }
 
-int CSVFileReader::getRows(string filename)
+int CSVFileReader::GetRows(string filename)
 {
 	ifstream csvFile;
 	int rowCount = 0;
@@ -37,13 +29,11 @@ int CSVFileReader::getRows(string filename)
 	return rowCount - 2; // drop title and headings rows
 }
 
-void CSVFileReader::ReadDataFile(vector<vector<string>> &records,
-	vector<vector<string>> normalizedRecords,
-	vector<string> &headings, string filename)
+void CSVFileReader::ReadDataFile(string filename)
 {
 	ifstream csvFile;
 	string currentRow;
-	int csvRows = getRows(filename);
+	int csvRows = GetRows(filename);
 	double minBurned = 0;
 	double maxBurned = 0;
 	
@@ -97,7 +87,7 @@ void CSVFileReader::ReadDataFile(vector<vector<string>> &records,
 		// check for min and max burned anchorage
 		const char* temp = toBeInserted[1].c_str();
 		double temp2 = atoi(temp);
-		findminMax(temp2, minBurned, maxBurned);
+		FindMinMax(temp2, minBurned, maxBurned);
 
 		// push processing vector onto final records vector
 		records.push_back(toBeInserted);
@@ -109,7 +99,7 @@ void CSVFileReader::ReadDataFile(vector<vector<string>> &records,
 	{
 
 		//normalize the processing vector
-		normalize(toBeInserted, minBurned, maxBurned);
+		Normalize(toBeInserted, minBurned, maxBurned);
 		normalizedRecords.push_back(toBeInserted);
 	}
 
@@ -135,7 +125,7 @@ void CSVFileReader::ReadDataFile(vector<vector<string>> &records,
 	csvFile.close();
 }
 
-void CSVFileReader::normalize(vector<string> &toBeInserted,double minBurned,
+void CSVFileReader::Normalize(vector<string> &toBeInserted,double minBurned,
 	double maxBurned)
 {
 	double minPredicted = -10;
@@ -164,7 +154,7 @@ void CSVFileReader::normalize(vector<string> &toBeInserted,double minBurned,
 	}
 }
 
-void CSVFileReader::findminMax(double temp2, double &minBurned, double &maxBurned)
+void CSVFileReader::FindMinMax(double temp2, double &minBurned, double &maxBurned)
 {
 	if (temp2 < minBurned)
 	{

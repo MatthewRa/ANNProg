@@ -20,12 +20,11 @@ int main(int argc, char *argv[])
 
 	inputParams = paramFileReader.ParseParameterFile(parameterFileName);
 
-	csvFileReader.filename = inputParams.DataFileName;
+	// Read in data from csv file to a 2D vector and normalizes data
+	csvFileReader.ReadDataFile(inputParams.DataFileName);
 
-	csvFileReader.ReadDataFile(csvFileReader.records, 
-							   csvFileReader.normalizedRecords,
-							   csvFileReader.headings,
-							   csvFileReader.filename);
+	// Randomize read in data into a new vector
+	csvFileReader.RandomizeValues();
 
 	if (csvFileReader.records.empty() == true ||
 		csvFileReader.headings.empty() == true)

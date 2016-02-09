@@ -7,6 +7,8 @@
 #include <sstream>
 #include <regex>
 #include <cstdlib>
+#include <algorithm>
+#include <random>
 
 using namespace std;
 
@@ -50,23 +52,18 @@ class CSVFileReader
 		vector<vector<string>> randRecords;
 		vector<vector<string>> normalizedRecords;
 		vector<string> headings;
-		string filename;
 		vector<int> randRows;
 
 		// ReadDataFile destroys the passed in vectors content
-		void ReadDataFile(vector<vector<string>> &records, 
-			vector<vector<string>> normalizedRecords,
-			vector<string> &headings, string filename);
+		void ReadDataFile(string filename);
 
-		void GetRandValues(vector<vector<string>> &randRecords, \
-			vector<vector<string>> records, int rowCount, vector<int> randRows, \
-			int trainingSize);
+		void RandomizeValues();
 
-		void normalize(vector<string> &toBeInserted, double minBurned,
+		void Normalize(vector<string> &toBeInserted, double minBurned,
 			double maxBurned);
 
 	private:
-		int getRows(string filename);
-		void findminMax(double temp2, double &minBurned, double &maxBurned);
+		int GetRows(string filename);
+		void FindMinMax(double temp2, double &minBurned, double &maxBurned);
 
 };
