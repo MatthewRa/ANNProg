@@ -66,7 +66,9 @@ class CSVFileReader
 class ANNTrainer
 {
 	public:
-		//<vector<vector<double>>> NeuralNet;
+		vector<vector<vector<double>>> weights;
+		vector<double> inputLayer;
+		vector<double> outputLayer;
 
 		void TrainNetwork(InputParameters params);
 };
