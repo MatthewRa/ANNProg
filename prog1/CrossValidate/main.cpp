@@ -3,7 +3,6 @@
 int main(int argc, char *argv[])
 {
 	InputParameters inputParams;
-	CSVFileReader csvFileReader;
 	ParameterFileReader paramFileReader;
 	string parameterFileName;
 
