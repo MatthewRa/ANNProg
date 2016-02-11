@@ -62,3 +62,11 @@ class CSVFileReader
 		void FindMinMax(double temp2, double &minBurned, double &maxBurned);
 
 };
+
+class ANNTrainer
+{
+	public:
+		//<vector<vector<double>>> NeuralNet;
+
+		void TrainNetwork(InputParameters params);
+};

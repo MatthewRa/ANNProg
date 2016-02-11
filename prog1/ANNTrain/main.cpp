@@ -3,6 +3,7 @@
 
 int main(int argc, char *argv[])
 {
+	ANNTrainer trainer;
 	InputParameters inputParams;
 	CSVFileReader csvFileReader;
 	ParameterFileReader paramFileReader;
@@ -32,6 +33,8 @@ int main(int argc, char *argv[])
 		cout << "An error occurred while reading csv file, exiting program.";
 		return -1;
 	}
+
+	trainer.TrainNetwork(inputParams);
 
 	return 0;
 }
