@@ -42,31 +42,3 @@ class ParameterFileReader
 
 		InputParameters ParseParameterFile(string fileName);
 };
-
-class CSVFileReader
-{
-	public:
-		vector<vector<string>> Records;
-		vector<vector<string>> RandRecords;
-		vector<vector<string>> NormalizedRecords;
-		vector<string> headings;
-		string filename;
-		vector<int> randRows;
-
-		// ReadDataFile destroys the passed in vectors content
-		void ReadDataFile(vector<vector<string>> &records, 
-			vector<vector<string>> normalizedRecords,
-			vector<string> &headings, string filename);
-
-		void GetRandValues(vector<vector<string>> &randRecords, \
-			vector<vector<string>> records, int rowCount, vector<int> randRows, \
-			int trainingSize);
-
-		void normalize(vector<string> &toBeInserted, double minBurned,
-			double maxBurned);
-
-	private:
-		int getRows(string filename);
-		void findminMax(double temp2, double &minBurned, double &maxBurned);
-
-};
