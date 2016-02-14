@@ -1,8 +1,21 @@
 #include "Header.h"
 
-void CSVFileReader::RandomizeValues()
+void CSVFileReader::RandomizeValues(InputParameters params)
 {
 	RandRecords = Records;
+
+	int PDSIMonthsNeeded = params.MonthsOfPDSIData / 12;
+	int BAYearsNeeded = params.BurnedAcreageYears;
+
+	if (PDSIMonthsNeeded > BAYearsNeeded)
+	{
+		RandRecords.erase(RandRecords.begin(), RandRecords.begin() + PDSIMonthsNeeded);
+	}
+	else
+	{
+		RandRecords.erase(RandRecords.begin(), RandRecords.begin() + BAYearsNeeded);
+	}
+
 	srand(time(0));
 
 	random_shuffle(begin(RandRecords), end(RandRecords));

@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	csvFileReader.ReadDataFile(inputParams.DataFileName);
 
 	// Randomize read in data into a new vector
-	csvFileReader.RandomizeValues();
+	csvFileReader.RandomizeValues(inputParams);
 
 	if (csvFileReader.Records.empty() == true ||
 		csvFileReader.headings.empty() == true)

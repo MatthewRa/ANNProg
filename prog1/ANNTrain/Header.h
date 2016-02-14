@@ -55,7 +55,7 @@ class CSVFileReader
 		// ReadDataFile destroys the passed in vectors content
 		void ReadDataFile(string filename);
 
-		void RandomizeValues();
+		void RandomizeValues(InputParameters params);
 
 	private:
 		int GetRows(string filename);
