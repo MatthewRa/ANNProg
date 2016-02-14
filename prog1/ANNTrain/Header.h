@@ -63,14 +63,32 @@ class CSVFileReader
 
 };
 
+class Neuron
+{
+	public:
+		double value;
+		double deltaError;
+
+		double Sigmoid(double x);
+		double SigmoidPrime(double x);
+};
 class ANNTrainer
 {
 	public:
+		vector<Neuron> inputLayer;
+		vector<vector<Neuron>> hiddenLayers;
+		vector<Neuron> outputLayer;
 		vector<vector<vector<double>>> weights;
-		vector<double> inputLayer;
-		vector<double> outputLayer;
 
-		void TrainNetwork(InputParameters params);
+		void TrainNetwork(CSVFileReader data, InputParameters params);
 		void readInWeights(InputParameters params);
 		void writeOutWeights(InputParameters params);
+
+	private:
+		void GenerateInputLayer(CSVFileReader data, InputParameters params);
+		void GenerateHiddenLayers(InputParameters params);
+		void GenerateOutputLayer(InputParameters params);
+		void InitializeWeights(InputParameters params);
+
 };
+

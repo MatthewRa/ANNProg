@@ -4,7 +4,7 @@ void CSVFileReader::RandomizeValues(InputParameters params)
 {
 	RandRecords = Records;
 
-	int PDSIMonthsNeeded = params.MonthsOfPDSIData / 12;
+	int PDSIMonthsNeeded =  ceil(params.MonthsOfPDSIData / 12.0);
 	int BAYearsNeeded = params.BurnedAcreageYears;
 
 	if (PDSIMonthsNeeded > BAYearsNeeded)

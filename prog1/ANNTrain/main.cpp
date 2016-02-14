@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	trainer.TrainNetwork(inputParams);
+	trainer.TrainNetwork(csvFileReader, inputParams);
 
 	return 0;
 }

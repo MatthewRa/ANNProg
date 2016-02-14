@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="ANNTrainer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Neuron.cpp" />
     <ClCompile Include="ParameterFileReader.cpp" />
     <ClCompile Include="ParseCSV.cpp" />
   </ItemGroup>

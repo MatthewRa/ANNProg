@@ -1,14 +1,174 @@
 #include "Header.h"
 
-void ANNTrainer::TrainNetwork(InputParameters params)
+void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 {
-	cout << params.NumberOfInputNodes << endl;
-	cout << params.NumberOfHiddenNodes << endl;
-	cout << params.NumberOfOutputNodes << endl;
+	int leftNodes = params.NumberOfInputNodes;
+	double calculatedValue = 0;
 
-	for (int weights = 0; weights < params.AdjustableLayerWeights; weights++)
+	GenerateHiddenLayers(params);
+	GenerateOutputLayer(params);
+	InitializeWeights(params);
+
+
+
+	for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
 	{
+		GenerateInputLayer(data, params);
 
+		for (int hiddenCol = 0; hiddenCol < hiddenLayers.size(); hiddenCol++)
+		{
+			for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes; hiddenNodeIndex++)
+			{
+				for (int numLeftNodes = 0; numLeftNodes < leftNodes; numLeftNodes++)
+				{
+					calculatedValue = calculatedValue + (inputLayer[numLeftNodes].value * weights[hiddenCol][numLeftNodes][hiddenNodeIndex]);
+
+				}
+				hiddenLayers[hiddenCol][hiddenNodeIndex].value = hiddenLayers[hiddenCol][hiddenNodeIndex].Sigmoid(calculatedValue);
+				calculatedValue = 0;
+			}
+			leftNodes = params.NumberOfHiddenNodes;
+		}
+
+		int weightIndex = params.AdjustableLayerWeights - 1;
+		calculatedValue = 0;
+		for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
+		{
+			for (int hiddenNodeIndex = 0; hiddenNodeIndex < leftNodes; hiddenNodeIndex++)
+			{
+				calculatedValue = calculatedValue + (inputLayer[hiddenNodeIndex].value * weights[weightIndex][hiddenNodeIndex][outputNodeIndex]);
+
+			}
+			outputLayer[outputNodeIndex].value = outputLayer[outputNodeIndex].Sigmoid(calculatedValue);
+			calculatedValue = 0;
+		}
+
+
+	}
+	//double newLow = 1 * (params.FireSeverityLowCutoff / params.FireSeverityHighCutoff);
+	//double newHigh = 1;
+}
+
+void ANNTrainer::GenerateOutputLayer(InputParameters params)
+{
+	for (int i = 0; i < params.NumberOfOutputNodes; i++)
+	{
+		Neuron outNeuron;
+
+		outNeuron.value = 0;
+		outNeuron.deltaError = 0;
+
+		outputLayer.push_back(outNeuron);
+	}
+}
+
+void ANNTrainer::InitializeWeights(InputParameters params)
+{
+	vector<vector<double>> middleVector;
+	vector<double> innerVector;
+	int numLeftNodes = params.NumberOfInputNodes;
+	int numRightNodes = params.NumberOfHiddenNodes + 1;
+	srand(time(0));
+
+	for (int i = 0; i < params.AdjustableLayerWeights; i++)
+	{
+		if (i == params.AdjustableLayerWeights - 1)
+		{
+			numRightNodes = params.NumberOfOutputNodes;
+		}
+
+		middleVector.clear();
+		for (int j = 0; j < numLeftNodes; j++)
+		{
+			innerVector.clear();
+			for (int k = 0; k < numRightNodes; k++)
+			{
+				innerVector.push_back(rand());
+			}
+			middleVector.push_back(innerVector);
+		}
+		weights.push_back(middleVector);
+		numLeftNodes = params.NumberOfHiddenNodes + 1;
+	}
+
+}
+
+void ANNTrainer::GenerateHiddenLayers(InputParameters params)
+{
+	for (int i = 0; i < (params.AdjustableLayerWeights - 1); i++)
+	{
+		vector<Neuron> hiddenLayerHolder;
+
+		for (int j = 0; j < params.NumberOfHiddenNodes; j++)
+		{
+			Neuron hiddenNeuron;
+
+			hiddenNeuron.value = 0;
+			hiddenNeuron.deltaError = 0;
+
+			hiddenLayerHolder.push_back(hiddenNeuron);
+		}
+
+		Neuron hiddenNeuron;
+
+		hiddenNeuron.value = 1;
+		hiddenNeuron.deltaError = 0;
+
+		hiddenLayerHolder.push_back(hiddenNeuron);
+
+		hiddenLayers.push_back(hiddenLayerHolder);
+	}
+}
+
+void ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params)
+{
+	static int randRecordIndex = 0;
+	int recordIndex = 0;
+
+	int year = data.RandRecords[randRecordIndex][0];
+	int PDSIYears = ceil(params.MonthsOfPDSIData / 12.0);
+	int BAYears = params.BurnedAcreageYears;
+
+	for (recordIndex = 0; recordIndex < data.Records.size(); recordIndex++)
+	{
+		if (data.Records[recordIndex][0] == year)
+		{
+			break;
+		}
+	}
+
+	int numPDSIMonths = params.MonthsOfPDSIData;
+	int j = 4;
+	for (int i = recordIndex; numPDSIMonths != 0;)
+	{
+		Neuron inputNeuron;
+
+		inputNeuron.value = data.Records[i][j];
+		inputNeuron.deltaError = 0;
+
+		inputLayer.push_back(inputNeuron);
+
+		if (j == 2)
+		{
+			i--;
+			j = 14;
+		}
+
+		numPDSIMonths--;
+		j--;
+	}
+
+	int numBAYears = params.BurnedAcreageYears;
+	for (int i = recordIndex - 1; numBAYears != 0 ; i--)
+	{
+		Neuron inputNeuron;
+
+		inputNeuron.value = data.Records[i][1];
+		inputNeuron.deltaError = 0;
+
+		inputLayer.push_back(inputNeuron);
+
+		numBAYears--;
 	}
 }
 
