@@ -71,4 +71,6 @@ class ANNTrainer
 		vector<double> outputLayer;
 
 		void TrainNetwork(InputParameters params);
+		void readInWeights(InputParameters params);
+		void writeOutWeights(InputParameters params);
 };
