@@ -85,7 +85,7 @@ class ANNTrainer
 		void writeOutWeights(InputParameters params);
 
 	private:
-		void GenerateInputLayer(CSVFileReader data, InputParameters params);
+		double GenerateInputLayer(CSVFileReader data, InputParameters params);
 		void GenerateHiddenLayers(InputParameters params);
 		void GenerateOutputLayer(InputParameters params);
 		void InitializeWeights(InputParameters params);

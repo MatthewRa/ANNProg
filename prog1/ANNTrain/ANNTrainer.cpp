@@ -4,46 +4,108 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 {
 	int leftNodes = params.NumberOfInputNodes;
 	double calculatedValue = 0;
+	double calculatedDeltaError = 0;
+	double desired = 0;
 
 	GenerateHiddenLayers(params);
 	GenerateOutputLayer(params);
 	InitializeWeights(params);
 
 
-
-	for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
+	for (int epochIndex = 0; epochIndex < 100; epochIndex++)
 	{
-		GenerateInputLayer(data, params);
-
-		for (int hiddenCol = 0; hiddenCol < hiddenLayers.size(); hiddenCol++)
+		for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
 		{
-			for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes; hiddenNodeIndex++)
+			desired = GenerateInputLayer(data, params);
+
+			// Calculated Values
+			for (int hiddenCol = 0; hiddenCol < hiddenLayers.size(); hiddenCol++)
 			{
-				for (int numLeftNodes = 0; numLeftNodes < leftNodes; numLeftNodes++)
+				for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes; hiddenNodeIndex++)
 				{
-					calculatedValue = calculatedValue + (inputLayer[numLeftNodes].value * weights[hiddenCol][numLeftNodes][hiddenNodeIndex]);
+					for (int numLeftNodes = 0; numLeftNodes < leftNodes; numLeftNodes++)
+					{
+						calculatedValue = calculatedValue + (inputLayer[numLeftNodes].value * weights[hiddenCol][numLeftNodes][hiddenNodeIndex]);
+
+					}
+					hiddenLayers[hiddenCol][hiddenNodeIndex].value = hiddenLayers[hiddenCol][hiddenNodeIndex].Sigmoid(calculatedValue);
+					calculatedValue = 0;
+				}
+				leftNodes = params.NumberOfHiddenNodes;
+			}
+
+			int weightIndex = params.AdjustableLayerWeights - 1;
+			calculatedValue = 0;
+			for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
+			{
+				for (int hiddenNodeIndex = 0; hiddenNodeIndex < leftNodes + 1; hiddenNodeIndex++)
+				{
+					calculatedValue = calculatedValue + (hiddenLayers[hiddenLayers.size()-1][hiddenNodeIndex].value * weights[weightIndex][hiddenNodeIndex][outputNodeIndex]);
 
 				}
-				hiddenLayers[hiddenCol][hiddenNodeIndex].value = hiddenLayers[hiddenCol][hiddenNodeIndex].Sigmoid(calculatedValue);
+				outputLayer[outputNodeIndex].value = outputLayer[outputNodeIndex].Sigmoid(calculatedValue);
 				calculatedValue = 0;
 			}
-			leftNodes = params.NumberOfHiddenNodes;
-		}
 
-		int weightIndex = params.AdjustableLayerWeights - 1;
-		calculatedValue = 0;
-		for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
-		{
-			for (int hiddenNodeIndex = 0; hiddenNodeIndex < leftNodes; hiddenNodeIndex++)
+			// DeltaError Calculatons
+			for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
 			{
-				calculatedValue = calculatedValue + (inputLayer[hiddenNodeIndex].value * weights[weightIndex][hiddenNodeIndex][outputNodeIndex]);
+				double actual = outputLayer[outputNodeIndex].value;
+				outputLayer[outputNodeIndex].deltaError = actual * (1 - actual) * (desired - actual);
+			}
+
+			for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes + 1; hiddenNodeIndex++)
+			{
+				for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
+				{
+					calculatedDeltaError = calculatedDeltaError + (outputLayer[outputNodeIndex].deltaError * weights[params.AdjustableLayerWeights - 1][hiddenNodeIndex][outputNodeIndex]);
+
+				}
+				hiddenLayers[hiddenLayers.size() - 1][hiddenNodeIndex].deltaError = calculatedDeltaError;
+			}
+
+			if (hiddenLayers.size() > 1)
+			{
+
+				for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes + 1; hiddenNodeIndex++)
+				{
+					for (int rightHiddenIndex = 0; rightHiddenIndex < params.NumberOfHiddenNodes + 1; rightHiddenIndex++)
+					{
+						calculatedDeltaError = calculatedDeltaError + (hiddenLayers[rightHiddenIndex][hiddenNodeIndex].deltaError * weights[params.AdjustableLayerWeights - 1][hiddenNodeIndex][rightHiddenIndex]);
+					}
+					hiddenLayers[hiddenLayers.size() - 1][hiddenNodeIndex].deltaError = calculatedDeltaError;
+				}
 
 			}
-			outputLayer[outputNodeIndex].value = outputLayer[outputNodeIndex].Sigmoid(calculatedValue);
-			calculatedValue = 0;
+
+			// Updating Weights
+			double newWeight = 0;
+			for (int layer = 0; layer < weights.size(); layer++)
+			{
+				for (int leftNodes = 0; leftNodes < weights[layer].size(); leftNodes++)
+				{
+					for (int rightNode = 0; rightNode < weights[layer][leftNodes].size(); rightNode++)
+					{
+						if (layer == 0)
+						{
+							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * hiddenLayers[0][rightNode].deltaError * inputLayer[leftNodes].SigmoidPrime(inputLayer[leftNodes].value);
+							weights[layer][leftNodes][rightNode] = newWeight;
+						}
+						else if (layer != params.AdjustableLayerWeights - 1)
+						{
+							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * hiddenLayers[layer + 1][rightNode].deltaError * hiddenLayers[layer - 1][leftNodes].SigmoidPrime(hiddenLayers[layer - 1][leftNodes].value);
+							weights[layer][leftNodes][rightNode] = newWeight;
+						}
+						else
+						{
+							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * outputLayer[rightNode].deltaError * hiddenLayers[layer - 1][leftNodes].SigmoidPrime(hiddenLayers[layer - 1][leftNodes].value);
+							weights[layer][leftNodes][rightNode] = newWeight;
+						}
+					}
+				}
+			}
 		}
-
-
+		cout << "Epoch: " << epochIndex << endl;
 	}
 	//double newLow = 1 * (params.FireSeverityLowCutoff / params.FireSeverityHighCutoff);
 	//double newHigh = 1;
@@ -83,7 +145,7 @@ void ANNTrainer::InitializeWeights(InputParameters params)
 			innerVector.clear();
 			for (int k = 0; k < numRightNodes; k++)
 			{
-				innerVector.push_back(rand());
+				innerVector.push_back( ((rand()%2000) / 1000.0) - 1.0);
 			}
 			middleVector.push_back(innerVector);
 		}
@@ -120,10 +182,11 @@ void ANNTrainer::GenerateHiddenLayers(InputParameters params)
 	}
 }
 
-void ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params)
+double ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params)
 {
 	static int randRecordIndex = 0;
 	int recordIndex = 0;
+	double retVal = 0;
 
 	int year = data.RandRecords[randRecordIndex][0];
 	int PDSIYears = ceil(params.MonthsOfPDSIData / 12.0);
@@ -133,6 +196,7 @@ void ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params)
 	{
 		if (data.Records[recordIndex][0] == year)
 		{
+			retVal = data.Records[recordIndex][1];
 			break;
 		}
 	}
@@ -170,6 +234,8 @@ void ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params)
 
 		numBAYears--;
 	}
+
+	return retVal;
 }
 
 void ANNTrainer::readInWeights(InputParameters params)
