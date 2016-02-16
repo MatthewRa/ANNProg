@@ -2,7 +2,7 @@
 
 void CSVFileReader::RandomizeValues(InputParameters params)
 {
-	RandRecords = Records;
+	RandRecords = NormalizedRecords;
 
 	int PDSIMonthsNeeded =  ceil(params.MonthsOfPDSIData / 12.0);
 	int BAYearsNeeded = params.BurnedAcreageYears;
@@ -63,7 +63,7 @@ void CSVFileReader::ReadDataFile(string filename)
 	}
 
 	//empty the passed in vectors
-	Records.clear();
+	NormalizedRecords.clear();
 	headings.clear();
 
 	getline(csvFile, currentRow); // ignore file heading line
@@ -122,22 +122,23 @@ void CSVFileReader::ReadDataFile(string filename)
 
 	}
 
+	NormalizedRecords = Records;
 	// normalize record vectors and store in new vector
-	for (int row = 0; row < Records.size(); row++)
+	for (int row = 0; row < NormalizedRecords.size(); row++)
 	{
 		for (int column = 1; column < toBeInserted.size(); column++)
 		{
 			if (column == 1)
 			{
-				double normalizedValue = (Records[row][column] - minBurned) / (maxBurned - minBurned);
+				double normalizedValue = (NormalizedRecords[row][column] - minBurned) / (maxBurned - minBurned);
 
-				Records[row][column] = normalizedValue;
+				NormalizedRecords[row][column] = normalizedValue;
 			}
 			else
 			{
-				double normalizedValue = (Records[row][column] - minPDSI) / (maxPDSI - minPDSI);
+				double normalizedValue = (NormalizedRecords[row][column] - minPDSI) / (maxPDSI - minPDSI);
 
-				Records[row][column] = normalizedValue;
+				NormalizedRecords[row][column] = normalizedValue;
 			}
 		}
 	}

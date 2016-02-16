@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	// Randomize read in data into a new vector
 	csvFileReader.RandomizeValues(inputParams);
 
-	if (csvFileReader.Records.empty() == true ||
+	if (csvFileReader.NormalizedRecords.empty() == true ||
 		csvFileReader.headings.empty() == true)
 	{
 		cout << "An error occurred while reading csv file, exiting program.";

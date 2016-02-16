@@ -49,6 +49,7 @@ class CSVFileReader
 {
 	public:
 		vector<vector<double>> Records;
+		vector<vector<double>> NormalizedRecords;
 		vector<vector<double>> RandRecords;
 		vector<string> headings;
 

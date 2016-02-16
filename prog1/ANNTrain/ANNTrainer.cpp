@@ -6,6 +6,7 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	double calculatedValue = 0;
 	double calculatedDeltaError = 0;
 	double desired = 0;
+	vector<int> encodedDesired;
 
 	GenerateHiddenLayers(params);
 	GenerateOutputLayer(params);
@@ -16,7 +17,29 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	{
 		for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
 		{
+			encodedDesired.clear();
 			desired = GenerateInputLayer(data, params);
+
+			// Encode Desired
+			if (desired < params.FireSeverityLowCutoff)
+			{
+				encodedDesired.push_back(1);
+				encodedDesired.push_back(0);
+				encodedDesired.push_back(0);
+			}
+			else if (desired > params.FireSeverityHighCutoff)
+			{
+				encodedDesired.push_back(0);
+				encodedDesired.push_back(0);
+				encodedDesired.push_back(1);
+			}
+			else
+			{
+				encodedDesired.push_back(0);
+				encodedDesired.push_back(1);
+				encodedDesired.push_back(0);
+			}
+
 
 			// Calculated Values
 			for (int hiddenCol = 0; hiddenCol < hiddenLayers.size(); hiddenCol++)
@@ -207,7 +230,7 @@ double ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params
 	{
 		Neuron inputNeuron;
 
-		inputNeuron.value = data.Records[i][j];
+		inputNeuron.value = data.NormalizedRecords[i][j];
 		inputNeuron.deltaError = 0;
 
 		inputLayer.push_back(inputNeuron);
@@ -227,7 +250,7 @@ double ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params
 	{
 		Neuron inputNeuron;
 
-		inputNeuron.value = data.Records[i][1];
+		inputNeuron.value = data.NormalizedRecords[i][1];
 		inputNeuron.deltaError = 0;
 
 		inputLayer.push_back(inputNeuron);
