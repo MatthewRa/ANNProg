@@ -4,7 +4,9 @@ double Neuron::Sigmoid(double x)
 {
 	double retVal = 0;
 
-	retVal = 1.0 / (1.0 - exp(-x));
+	double temp = exp(-x);
+
+	retVal = 1.0 / (1.0 + exp(-x));
 
 	return retVal;
 }
