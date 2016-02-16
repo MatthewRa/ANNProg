@@ -36,5 +36,7 @@ int main(int argc, char *argv[])
 
 	trainer.TrainNetwork(csvFileReader, inputParams);
 
+	trainer.writeOutWeights(inputParams);
+
 	return 0;
 }

@@ -8,12 +8,15 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	double desired = 0;
 	vector<int> encodedDesired;
 
+	double psum;
+	double ksum;
+
 	GenerateHiddenLayers(params);
 	GenerateOutputLayer(params);
 	InitializeWeights(params);
 
 
-	for (int epochIndex = 0; epochIndex < params.TrainingEpochs; epochIndex++)
+	for (int epochIndex = 1; epochIndex < 100+1; epochIndex++)
 	{
 		for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
 		{
@@ -132,7 +135,10 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 				}
 			}
 		}
-		cout << "Epoch: " << epochIndex << endl;
+		if (epochIndex % 10 == 0)
+		{
+			cout << "Epoch: " << epochIndex <<  ", MeanSquaredError: " << endl;
+		}
 	}
 }
 
@@ -323,18 +329,17 @@ void ANNTrainer::writeOutWeights(InputParameters params)
 	}
 
 	// write out the weight values to the file based on the size of each layer 
-	while (layer != params.AdjustableLayerWeights)
+	for (int layer = 0; layer < weights.size(); layer++)
 	{
-		for (int startNode = 0; startNode < sizeof(weights); startNode++)
+		for (int leftNodes = 0; leftNodes < weights[layer].size(); leftNodes++)
 		{
-			for (int endNode = 0; endNode < sizeof(weights[startNode]); endNode++)
+			for (int rightNode = 0; rightNode < weights[layer][leftNodes].size(); rightNode++)
 			{
 				//outWeights << layer << ' ' << startNode << ' ' << endNode << ' '
 					//<< weights[layer][startNode][endNode] << endl;
-				outWeights << weights[layer][startNode][endNode] << endl;
+				outWeights << weights[layer][leftNodes][rightNode] << endl;
 			}
 		}
-		layer++;
 	}
 
 	outWeights.close();
