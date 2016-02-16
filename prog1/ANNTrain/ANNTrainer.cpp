@@ -118,17 +118,17 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 					{
 						if (layer == 0)
 						{
-							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * hiddenLayers[0][rightNode].deltaError * inputLayer[leftNodes].SigmoidPrime(inputLayer[leftNodes].value);
+							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * hiddenLayers[0][rightNode].deltaError * inputLayer[leftNodes].value;
 							weights[layer][leftNodes][rightNode] = newWeight;
 						}
 						else if (layer != params.AdjustableLayerWeights - 1)
 						{
-							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * hiddenLayers[layer + 1][rightNode].deltaError * hiddenLayers[layer - 1][leftNodes].SigmoidPrime(hiddenLayers[layer - 1][leftNodes].value);
+							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * hiddenLayers[layer + 1][rightNode].deltaError * hiddenLayers[layer - 1][leftNodes].value;
 							weights[layer][leftNodes][rightNode] = newWeight;
 						}
 						else
 						{
-							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * outputLayer[rightNode].deltaError * hiddenLayers[layer - 1][leftNodes].SigmoidPrime(hiddenLayers[layer - 1][leftNodes].value);
+							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * outputLayer[rightNode].deltaError * hiddenLayers[layer - 1][leftNodes].value;
 							weights[layer][leftNodes][rightNode] = newWeight;
 						}
 					}
@@ -277,6 +277,7 @@ void ANNTrainer::readInWeights(InputParameters params)
 	int nodes = params.NumberOfInputNodes; // handle input to hidden nodes
 	int hiddenlayers = params.AdjustableLayerWeights - 1; // number of hidden layers
 
+	weights.clear();
 	// open and error check file
 	inWeights.open(params.ANNWeightFile);
 	if (!inWeights)
@@ -335,8 +336,6 @@ void ANNTrainer::writeOutWeights(InputParameters params)
 		{
 			for (int rightNode = 0; rightNode < weights[layer][leftNodes].size(); rightNode++)
 			{
-				//outWeights << layer << ' ' << startNode << ' ' << endNode << ' '
-					//<< weights[layer][startNode][endNode] << endl;
 				outWeights << weights[layer][leftNodes][rightNode] << endl;
 			}
 		}
