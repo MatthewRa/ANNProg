@@ -276,6 +276,7 @@ void ANNTrainer::readInWeights(InputParameters params)
 	int layer = 0; // current working layer 
 	int nodes = params.NumberOfInputNodes; // handle input to hidden nodes
 	int hiddenlayers = params.AdjustableLayerWeights - 1; // number of hidden layers
+	double nodeValue = 0;
 
 	weights.clear();
 	// open and error check file
@@ -293,7 +294,12 @@ void ANNTrainer::readInWeights(InputParameters params)
 		{
 			for (int endNode = 0; endNode < params.NumberOfHiddenNodes -1; endNode++)
 			{
-				inWeights >> weights[layer][startNode][endNode];
+				//cout << weights[layer][startNode][endNode] << endl;
+				inWeights >> nodeValue;
+				//cout << "node " << nodeValue << endl;
+				weights[layer][startNode][endNode] = nodeValue;
+				//cout << weights[layer][startNode][endNode] << endl;
+
 			}
 		}
 		// update nodes so the loop can handle the hidden to hidden weight layers
