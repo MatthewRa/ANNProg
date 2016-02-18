@@ -8,8 +8,7 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	double desired = 0;
 	vector<int> encodedDesired;
 
-	double psum;
-	double ksum;
+	double squaredError = 0;
 
 	GenerateHiddenLayers(params);
 	GenerateOutputLayer(params);
@@ -18,6 +17,7 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 
 	for (int epochIndex = 1; epochIndex < 100+1; epochIndex++)
 	{
+		squaredError = 0;
 		for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
 		{
 			encodedDesired.clear();
@@ -74,12 +74,15 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 			}
 
 			// DeltaError Calculatons
+			double errorHolder = 0;
 			for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
 			{
 				double actual = outputLayer[outputNodeIndex].value;
 				outputLayer[outputNodeIndex].deltaError = outputLayer[outputNodeIndex].SigmoidPrime(actual) * ((double)encodedDesired[outputNodeIndex] - actual);
+				errorHolder = errorHolder + pow((double)encodedDesired[outputNodeIndex] - actual, 2.0);
 			}
 
+			squaredError = squaredError + errorHolder;
 			for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes + 1; hiddenNodeIndex++)
 			{
 				for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
@@ -137,7 +140,7 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 		}
 		if (epochIndex % 10 == 0)
 		{
-			cout << "Epoch: " << epochIndex <<  ", MeanSquaredError: " << endl;
+			cout << "Epoch: " << epochIndex <<  ", RootMeanSquaredError: " << sqrt(squaredError/data.RandRecords.size()) << endl;
 		}
 	}
 }

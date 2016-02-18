@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
 	trainer.writeOutWeights(inputParams);
 
-	trainer.readInWeights(inputParams);
+	//trainer.readInWeights(inputParams);
 
 	return 0;
 }
