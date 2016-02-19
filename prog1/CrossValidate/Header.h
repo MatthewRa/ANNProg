@@ -7,6 +7,8 @@
 #include <sstream>
 #include <regex>
 #include <cstdlib>
+#include <algorithm>
+#include <random>
 
 using namespace std;
 
@@ -42,3 +44,57 @@ class ParameterFileReader
 
 		InputParameters ParseParameterFile(string fileName);
 };
+
+class CSVFileReader
+{
+	public:
+		vector<vector<double>> Records;
+		vector<vector<double>> NormalizedRecords;
+		vector<vector<double>> RandRecords;
+		vector<string> headings;
+
+		// ReadDataFile destroys the passed in vectors content
+		void ReadDataFile(string filename);
+
+		void RandomizeValues(InputParameters params);
+
+	private:
+		int GetRows(string filename);
+		void FindMinMax(double temp2, double &minBurned, double &maxBurned);
+
+};
+
+class WeightsIO
+{
+	public:
+		void readInWeights(vector<vector<vector<double>>> &weights, InputParameters params);
+		void writeOutWeights(vector<vector<vector<double>>> &weights, InputParameters params);
+};
+
+class Neuron
+{
+	public:
+		double value;
+		double deltaError;
+
+		double Sigmoid(double x);
+		double SigmoidPrime(double x);
+};
+class ANNTrainer
+{
+	public:
+		vector<Neuron> inputLayer;
+		vector<vector<Neuron>> hiddenLayers;
+		vector<Neuron> outputLayer;
+		vector<vector<vector<double>>> weights;
+
+		void TrainNetwork(CSVFileReader data, InputParameters params);
+
+	private:
+		double GenerateInputLayer(CSVFileReader data, InputParameters params);
+		void GenerateHiddenLayers(InputParameters params);
+		void GenerateOutputLayer(InputParameters params);
+		void InitializeWeights(InputParameters params);
+
+};
+

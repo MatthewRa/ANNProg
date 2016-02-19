@@ -8,6 +8,7 @@ int main(int argc, char *argv[])
 	CSVFileReader csvFileReader;
 	ParameterFileReader paramFileReader;
 	string parameterFileName;
+	WeightsIO weightWriter;
 
 	if (argc != 2)
 	{
@@ -36,9 +37,7 @@ int main(int argc, char *argv[])
 
 	trainer.TrainNetwork(csvFileReader, inputParams);
 
-	trainer.writeOutWeights(inputParams);
-
-	trainer.readInWeights(inputParams);
+	weightWriter.writeOutWeights(trainer.weights ,inputParams);
 
 	return 0;
 }

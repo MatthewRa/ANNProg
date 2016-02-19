@@ -17,19 +17,13 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	InitializeWeights(params);
 
 
-	for (int epochIndex = 1; epochIndex < params.TrainingEpochs+1; epochIndex++)
+	for (int epochIndex = 1; epochIndex < params.TrainingEpochs; epochIndex++)
 	{
 		squaredError = 0;
-		data.RandomizeValues(params);
-
 		for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
 		{
-			inputLayer.clear();
-			outputLayer.clear();
 			encodedDesired.clear();
-
 			desired = GenerateInputLayer(data, params);
-			GenerateOutputLayer(params);
 
 			// Encode Desired
 			if (desired < params.FireSeverityLowCutoff)
@@ -237,11 +231,6 @@ double ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params
 	int recordIndex = 0;
 	double retVal = 0;
 
-	if (randRecordIndex == data.RandRecords.size())
-	{
-		randRecordIndex = 0;
-	}
-
 	int year = data.RandRecords[randRecordIndex][0];
 	int PDSIYears = ceil(params.MonthsOfPDSIData / 12.0);
 	int BAYears = params.BurnedAcreageYears;
@@ -288,8 +277,6 @@ double ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params
 
 		numBAYears--;
 	}
-
-	randRecordIndex++;
 
 	return retVal;
 }
