@@ -280,6 +280,8 @@ void ANNTrainer::readInWeights(InputParameters params)
 	int nodes = params.NumberOfInputNodes; // handle input to hidden nodes
 	int hiddenlayers = params.AdjustableLayerWeights - 1; // number of hidden layers
 	double nodeValue = 0;
+	vector<double> valToBeInserted;
+	vector<vector<double>> nodeToBeInserted;
 
 	weights.clear();
 	// open and error check file
@@ -297,14 +299,17 @@ void ANNTrainer::readInWeights(InputParameters params)
 		{
 			for (int endNode = 0; endNode < params.NumberOfHiddenNodes -1; endNode++)
 			{
-				//cout << weights[layer][startNode][endNode] << endl;
+				
 				inWeights >> nodeValue;
-				//cout << "node " << nodeValue << endl;
-				weights[layer][startNode][endNode] = nodeValue;
-				//cout << weights[layer][startNode][endNode] << endl;
+				valToBeInserted.push_back(nodeValue);
+			
 
 			}
+			nodeToBeInserted.push_back(valToBeInserted);
+			valToBeInserted.clear();
 		}
+		weights.push_back(nodeToBeInserted);
+		nodeToBeInserted.clear();
 		// update nodes so the loop can handle the hidden to hidden weight layers
 		nodes = params.NumberOfHiddenNodes;
 		layer++;
@@ -315,9 +320,13 @@ void ANNTrainer::readInWeights(InputParameters params)
 	{
 		for (int endNode = 0; endNode < params.NumberOfOutputNodes - 1; endNode++)
 		{
-			inWeights >> weights[layer][startNode][endNode];
+			inWeights >> nodeValue;
+			valToBeInserted.push_back(nodeValue);
 		}
+		nodeToBeInserted.push_back(valToBeInserted);
+		valToBeInserted.clear();
 	}
+	weights.push_back(nodeToBeInserted);
 
 	inWeights.close();
 
