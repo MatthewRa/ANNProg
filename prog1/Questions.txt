@@ -1,0 +1,9 @@
+Answers to Questions for AI prog1: Artificial Neural Networks
+Group Members: Marcus Berger, Matthew Rames, Mack Smith
+
+How well does your network train?
+
+What is the impact of network topology (i.e., changing the number of hidden layer nodes) on
+training? 
+
+How well does the network generalize from training data to testing data?
