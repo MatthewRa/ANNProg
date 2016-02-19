@@ -9,13 +9,14 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	vector<int> encodedDesired;
 
 	double squaredError = 0;
+	double RMSE = 0;
 
 	GenerateHiddenLayers(params);
 	GenerateOutputLayer(params);
 	InitializeWeights(params);
 
 
-	for (int epochIndex = 1; epochIndex < 100+1; epochIndex++)
+	for (int epochIndex = 1; epochIndex < params.TrainingEpochs; epochIndex++)
 	{
 		squaredError = 0;
 		for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
@@ -138,9 +139,16 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 				}
 			}
 		}
+		RMSE = sqrt(squaredError / data.RandRecords.size());
+		if (RMSE < 0.015)
+		{
+			cout << "Epoch: " << epochIndex << ", RootMeanSquaredError: " << RMSE << endl;
+			break;
+		}
+
 		if (epochIndex % 10 == 0)
 		{
-			cout << "Epoch: " << epochIndex <<  ", RootMeanSquaredError: " << sqrt(squaredError/data.RandRecords.size()) << endl;
+			cout << "Epoch: " << epochIndex <<  ", RootMeanSquaredError: " << RMSE << endl;
 		}
 	}
 }
@@ -296,9 +304,9 @@ void ANNTrainer::readInWeights(InputParameters params)
 	// handle the input to first hidden layer and the hidden to hidden layers
 	while (layer != params.AdjustableLayerWeights - 1)
 	{
-		for (int startNode = 0; startNode < nodes - 1; startNode++)
+		for (int startNode = 0; startNode < nodes; startNode++)
 		{
-			for (int endNode = 0; endNode < params.NumberOfHiddenNodes -1; endNode++)
+			for (int endNode = 0; endNode < params.NumberOfHiddenNodes+1; endNode++)
 			{
 				//get weight value and push on to the vector holding the weights
 				// connected to the current node
@@ -322,9 +330,9 @@ void ANNTrainer::readInWeights(InputParameters params)
 	}
 
 	// read in the last hidden to output weight layer 
-	for (int startNode = 0; startNode < nodes - 1; startNode++)
+	for (int startNode = 0; startNode < nodes+1; startNode++)
 	{
-		for (int endNode = 0; endNode < params.NumberOfOutputNodes - 1; endNode++)
+		for (int endNode = 0; endNode < params.NumberOfOutputNodes; endNode++)
 		{
 			inWeights >> nodeValue;
 			valToBeInserted.push_back(nodeValue);
