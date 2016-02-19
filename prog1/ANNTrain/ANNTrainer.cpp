@@ -283,6 +283,7 @@ void ANNTrainer::readInWeights(InputParameters params)
 	vector<double> valToBeInserted;
 	vector<vector<double>> nodeToBeInserted;
 
+	// empty the vector for new read
 	weights.clear();
 	// open and error check file
 	inWeights.open(params.ANNWeightFile);
@@ -299,15 +300,20 @@ void ANNTrainer::readInWeights(InputParameters params)
 		{
 			for (int endNode = 0; endNode < params.NumberOfHiddenNodes -1; endNode++)
 			{
-				
+				//get weight value and push on to the vector holding the weights
+				// connected to the current node
 				inWeights >> nodeValue;
 				valToBeInserted.push_back(nodeValue);
 			
 
 			}
+			// once all weights have been pushed for that node push the node
+			// into the node list
 			nodeToBeInserted.push_back(valToBeInserted);
+			//clear the value vector for next node
 			valToBeInserted.clear();
 		}
+		// After entire layer has been processed push to weight vector and clear nodes
 		weights.push_back(nodeToBeInserted);
 		nodeToBeInserted.clear();
 		// update nodes so the loop can handle the hidden to hidden weight layers
