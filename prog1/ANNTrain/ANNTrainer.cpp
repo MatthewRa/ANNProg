@@ -59,8 +59,8 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 			}
 
 
-			leftNodes = params.NumberOfInputNodes + 1;
 			// Calculated Values
+			leftNodes = params.NumberOfInputNodes + 1;
 			for (int hiddenCol = 0; hiddenCol < hiddenLayers.size(); hiddenCol++)
 			{
 				for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes; hiddenNodeIndex++)

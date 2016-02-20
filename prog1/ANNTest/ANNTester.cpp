@@ -50,6 +50,7 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 		}
 
 		// Calculated Values
+		leftNodes = params.NumberOfInputNodes + 1;
 		for (int hiddenCol = 0; hiddenCol < hiddenLayers.size(); hiddenCol++)
 		{
 			for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes; hiddenNodeIndex++)
@@ -67,9 +68,10 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 
 		int weightIndex = params.AdjustableLayerWeights - 1;
 		calculatedValue = 0;
+		leftNodes = params.NumberOfHiddenNodes + 1;
 		for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
 		{
-			for (int hiddenNodeIndex = 0; hiddenNodeIndex < leftNodes + 1; hiddenNodeIndex++)
+			for (int hiddenNodeIndex = 0; hiddenNodeIndex < leftNodes; hiddenNodeIndex++)
 			{
 				calculatedValue = calculatedValue + (hiddenLayers[hiddenLayers.size() - 1][hiddenNodeIndex].value * weights[weightIndex][hiddenNodeIndex][outputNodeIndex]);
 
