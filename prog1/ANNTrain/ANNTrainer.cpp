@@ -180,7 +180,7 @@ void ANNTrainer::InitializeWeights(InputParameters params)
 	vector<vector<double>> middleVector;
 	vector<double> innerVector;
 	int numLeftNodes = params.NumberOfInputNodes + 1;
-	int numRightNodes = params.NumberOfHiddenNodes + 1;
+	int numRightNodes = params.NumberOfHiddenNodes;
 	srand(time(0));
 
 	for (int i = 0; i < params.AdjustableLayerWeights; i++)

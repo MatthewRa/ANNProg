@@ -2,7 +2,7 @@
 
 void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 {
-	int leftNodes = params.NumberOfInputNodes;
+	int leftNodes = params.NumberOfInputNodes + 1;
 	WeightsIO weightsReader;
 	vector<int> encodedDesired;
 	vector<int> actualVector;
@@ -218,6 +218,14 @@ double ANNTester::GenerateInputLayer(CSVFileReader data, InputParameters params)
 
 		numBAYears--;
 	}
+
+	Neuron biasNode;
+
+	biasNode.value = 1;
+	biasNode.deltaError = 0;
+
+	inputLayer.push_back(biasNode);
+
 	randRecordIndex++;
 
 	return retVal;

@@ -26,7 +26,7 @@ void WeightsIO::readInWeights(vector<vector<vector<double>>> &weights, InputPara
 	{
 		for (int startNode = 0; startNode < nodes; startNode++)
 		{
-			for (int endNode = 0; endNode < params.NumberOfHiddenNodes + 1; endNode++)
+			for (int endNode = 0; endNode < params.NumberOfHiddenNodes; endNode++)
 			{
 				//get weight value and push on to the vector holding the weights
 				// connected to the current node
