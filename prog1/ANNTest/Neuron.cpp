@@ -1,27 +1,21 @@
-#include "ANNTest.h"
+#include "Header.h"
 
-// Function to determine if neuron fires or not
-#include "ANNTest.h"
-
-bool Neuron::activation()
+double Neuron::Sigmoid(double x)
 {
-	//if (sum > threshold)
-	//{
-	//	return true;
-	//}
-	return true;
+	double retVal = 0;
+
+	double temp = exp(-x);
+
+	retVal = 1.0 / (1.0 + exp(-x));
+
+	return retVal;
 }
 
-// Sums up input from previous layer of neurons
-double Neuron::sum()
+double Neuron::SigmoidPrime(double x)
 {
-	int i = 0;
-	double sum = 0;
+	double retVal = 0;
 
-	for (i = 0; i < input.size(); i++)
-	{
-		sum += input[i];
-	}
-	
-	return sum;
-};
+	retVal = x * (1 - x);
+
+	return retVal;
+}

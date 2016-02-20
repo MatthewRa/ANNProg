@@ -64,6 +64,13 @@ class CSVFileReader
 
 };
 
+class WeightsIO
+{
+	public:
+		void readInWeights(vector<vector<vector<double>>> &weights, InputParameters params);
+		void writeOutWeights(vector<vector<vector<double>>> &weights, InputParameters params);
+};
+
 class Neuron
 {
 	public:
@@ -82,8 +89,6 @@ class ANNTrainer
 		vector<vector<vector<double>>> weights;
 
 		void TrainNetwork(CSVFileReader data, InputParameters params);
-		void readInWeights(InputParameters params);
-		void writeOutWeights(InputParameters params);
 
 	private:
 		double GenerateInputLayer(CSVFileReader data, InputParameters params);
