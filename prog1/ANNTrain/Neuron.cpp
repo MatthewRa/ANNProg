@@ -15,7 +15,7 @@ double Neuron::SigmoidPrime(double x)
 {
 	double retVal = 0;
 
-	retVal = x * (1 - x);
+	retVal = x * (1.0 - x);
 
 	return retVal;
 }

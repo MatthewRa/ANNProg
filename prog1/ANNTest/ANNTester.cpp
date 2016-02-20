@@ -9,6 +9,7 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 	double desired;
 	double calculatedValue = 0;
 	bool correct = true;
+	double numberCorrect = 0.0;
 
 	GenerateHiddenLayers(params);
 	GenerateOutputLayer(params);
@@ -20,8 +21,13 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 		encodedDesired.clear();
 		actualVector.clear();
 		correct = true;
+		inputLayer.clear();
+		outputLayer.clear();
+		hiddenLayers.clear();
 
 		desired = GenerateInputLayer(data, params);
+		GenerateHiddenLayers(params);
+		GenerateOutputLayer(params);
 
 		// Encode Desired
 		if (desired < params.FireSeverityLowCutoff)
@@ -104,10 +110,13 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 		}
 		else
 		{
+			numberCorrect++;
 			cout << endl;
 		}
 
 	}
+
+	cout << "Percentage Correct: " << (numberCorrect / data.RandRecords.size())*100.0 << "%" << endl;
 
 
 }
