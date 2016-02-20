@@ -7,13 +7,15 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	double calculatedDeltaError = 0;
 	double desired = 0;
 	double previousWeight = 0;
+	double ksum = 0;
+	double psum = 0;
 	vector<int> encodedDesired;
 
 	double squaredError = 0;
 	double RMSE = 0;
 
-	GenerateHiddenLayers(params);
-	GenerateOutputLayer(params);
+	//GenerateHiddenLayers(params);
+	//GenerateOutputLayer(params);
 	InitializeWeights(params);
 
 
@@ -21,6 +23,7 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	{
 		squaredError = 0;
 		data.RandomizeValues(params);
+		psum = 0;
 
 		for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
 		{
@@ -54,14 +57,15 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 			}
 
 
+			leftNodes = params.NumberOfInputNodes + 1;
 			// Calculated Values
 			for (int hiddenCol = 0; hiddenCol < hiddenLayers.size(); hiddenCol++)
 			{
 				for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes; hiddenNodeIndex++)
 				{
-					for (int numLeftNodes = 0; numLeftNodes < leftNodes; numLeftNodes++)
+					for (int LeftNodeIndex = 0; LeftNodeIndex < leftNodes; LeftNodeIndex++)
 					{
-						calculatedValue = calculatedValue + (inputLayer[numLeftNodes].value * weights[hiddenCol][numLeftNodes][hiddenNodeIndex]);
+						calculatedValue = calculatedValue + (inputLayer[LeftNodeIndex].value * weights[hiddenCol][LeftNodeIndex][hiddenNodeIndex]);
 
 					}
 					hiddenLayers[hiddenCol][hiddenNodeIndex].value = hiddenLayers[hiddenCol][hiddenNodeIndex].Sigmoid(calculatedValue);
@@ -72,9 +76,10 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 
 			int weightIndex = params.AdjustableLayerWeights - 1;
 			calculatedValue = 0;
+			leftNodes = params.NumberOfHiddenNodes + 1;
 			for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
 			{
-				for (int hiddenNodeIndex = 0; hiddenNodeIndex < leftNodes + 1; hiddenNodeIndex++)
+				for (int hiddenNodeIndex = 0; hiddenNodeIndex < leftNodes; hiddenNodeIndex++)
 				{
 					calculatedValue = calculatedValue + (hiddenLayers[hiddenLayers.size()-1][hiddenNodeIndex].value * weights[weightIndex][hiddenNodeIndex][outputNodeIndex]);
 
@@ -84,15 +89,17 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 			}
 
 			// DeltaError Calculatons
-			double errorHolder = 0;
+			ksum = 0;
 			for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
 			{
 				double actual = outputLayer[outputNodeIndex].value;
 				outputLayer[outputNodeIndex].deltaError = outputLayer[outputNodeIndex].SigmoidPrime(actual) * ((double)encodedDesired[outputNodeIndex] - actual);
-				errorHolder = errorHolder + pow((double)encodedDesired[outputNodeIndex] - actual, 2.0);
+
+				ksum = ksum + pow((double)encodedDesired[outputNodeIndex] - actual, 2.0);
 			}
 
-			squaredError = squaredError + errorHolder;
+			psum = psum + ksum;
+
 			for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes + 1; hiddenNodeIndex++)
 			{
 				for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
@@ -141,14 +148,15 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 						}
 						else
 						{
-							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * outputLayer[rightNode].deltaError * hiddenLayers[layer - 1][leftNodes].value;
+							newWeight = weights[layer][leftNodes][rightNode] + params.LearnRate * outputLayer[rightNode].deltaError * hiddenLayers[layer-1][leftNodes].value;
 							weights[layer][leftNodes][rightNode] = newWeight;
 						}
 					}
 				}
 			}
 		}
-		RMSE = sqrt(squaredError / epochIndex);
+
+		RMSE = sqrt(psum / (params.NumberOfOutputNodes * data.RandRecords.size()));
 		if (RMSE < params.ErrorThreshold)
 		{
 			cout << "Epoch: " << epochIndex << ", RootMeanSquaredError: " << RMSE << endl;
@@ -222,12 +230,12 @@ void ANNTrainer::GenerateHiddenLayers(InputParameters params)
 			hiddenLayerHolder.push_back(hiddenNeuron);
 		}
 
-		Neuron hiddenNeuron;
+		Neuron biasNode;
 
-		hiddenNeuron.value = 1;
-		hiddenNeuron.deltaError = 0;
+		biasNode.value = 1;
+		biasNode.deltaError = 0;
 
-		hiddenLayerHolder.push_back(hiddenNeuron);
+		hiddenLayerHolder.push_back(biasNode);
 
 		hiddenLayers.push_back(hiddenLayerHolder);
 	}
@@ -257,6 +265,19 @@ double ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params
 		}
 	}
 
+	int numBAYears = params.BurnedAcreageYears;
+	for (int i = recordIndex - 1; numBAYears != 0 ; i--)
+	{
+		Neuron inputNeuron;
+
+		inputNeuron.value = data.NormalizedRecords[i][1];
+		inputNeuron.deltaError = 0;
+
+		inputLayer.push_back(inputNeuron);
+
+		numBAYears--;
+	}
+
 	int numPDSIMonths = params.MonthsOfPDSIData;
 	int j = 4;
 	for (int i = recordIndex; numPDSIMonths != 0;)
@@ -276,19 +297,6 @@ double ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params
 
 		numPDSIMonths--;
 		j--;
-	}
-
-	int numBAYears = params.BurnedAcreageYears;
-	for (int i = recordIndex - 1; numBAYears != 0 ; i--)
-	{
-		Neuron inputNeuron;
-
-		inputNeuron.value = data.NormalizedRecords[i][1];
-		inputNeuron.deltaError = 0;
-
-		inputLayer.push_back(inputNeuron);
-
-		numBAYears--;
 	}
 
 	Neuron biasNode;
