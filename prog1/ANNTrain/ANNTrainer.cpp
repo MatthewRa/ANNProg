@@ -149,7 +149,7 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 			}
 		}
 		RMSE = sqrt(squaredError / epochIndex);
-		if (RMSE < 0.15)
+		if (RMSE < params.ErrorThreshold)
 		{
 			cout << "Epoch: " << epochIndex << ", RootMeanSquaredError: " << RMSE << endl;
 			break;
