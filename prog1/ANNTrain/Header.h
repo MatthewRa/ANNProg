@@ -89,6 +89,9 @@ class ANNTrainer
 		vector<vector<vector<double>>> weights;
 
 		void TrainNetwork(CSVFileReader data, InputParameters params);
+		void ForwardPropagation(CSVFileReader data, InputParameters params);
+		void CalculateDeltaError(CSVFileReader data, InputParameters params, double &psum, vector<int> encodedDesired);
+		void UpdateWeights(CSVFileReader data, InputParameters params);
 
 	private:
 		double GenerateInputLayer(CSVFileReader data, InputParameters params);
