@@ -7,3 +7,17 @@ What is the impact of network topology (i.e., changing the number of hidden laye
 training? 
 
 How well does the network generalize from training data to testing data?
+
+
+nw rmse .037 5 hidden nodes testing 62. 5 %
+nw rmse .0392 3 hidden node Testing: 75%
+nw rmse .0340 3 hidden node Testing: 81%
+nw rmse .040 3 hidden node Testing: 81.25%
+nw rmse .0392 3 hidden node Testing: 75%
+nw rmse .0353 7 hidden node Testing: 62.5%
+
+nw rmse .0392 3 hidden nodes  3000 low cut off and 15000 cut off  Testing: 62.5%
+nw rmse .0392 3 hidden nodes  3000 low cut off and 15000 cut off  Testing: 75%
+
+bh rmse .197 4 hidden nodes Testing 69.444%
+
