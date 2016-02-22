@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="ANNTester.cpp" />
     <ClCompile Include="ANNTrainer.cpp" />
+    <ClCompile Include="ANNCrossValidate.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Neuron.cpp" />
     <ClCompile Include="ParameterFileReader.cpp" />

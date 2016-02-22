@@ -14,7 +14,7 @@ void WeightsIO::readInWeights(vector<vector<vector<double>>> &weights, InputPara
 	// empty the vector for new read
 	weights.clear();
 	// open and error check file
-	inWeights.open(params.ANNWeightFile);
+	inWeights.open("../" + params.ANNWeightFile);
 	if (!inWeights)
 	{
 		cerr << "Error opening weights file" << endl;

@@ -101,3 +101,27 @@ class ANNTrainer
 
 };
 
+class ANNTester
+{
+	public:
+		vector<Neuron> inputLayer;
+		vector<vector<Neuron>> hiddenLayers;
+		vector<Neuron> outputLayer;
+		vector<vector<vector<double>>> weights;
+
+		int TestNetwork(CSVFileReader data, InputParameters params, int yearToTest);
+		void ForwardPropagation(CSVFileReader data, InputParameters params);
+
+	private:
+		double GenerateInputLayer(CSVFileReader data, InputParameters params, int yearToTest);
+		void GenerateHiddenLayers(InputParameters params);
+		void GenerateOutputLayer(InputParameters params);
+
+};
+
+class ANNCrossValidate
+{
+	public:
+		void CrossValidate(CSVFileReader data, InputParameters params);
+};
+
