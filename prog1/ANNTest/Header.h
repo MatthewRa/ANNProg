@@ -90,6 +90,7 @@ class ANNTester
 		vector<vector<vector<double>>> weights;
 
 		void TestNetwork(CSVFileReader data, InputParameters params);
+		void ForwardPropagation(CSVFileReader data, InputParameters params);
 
 	private:
 		double GenerateInputLayer(CSVFileReader data, InputParameters params);

@@ -18,9 +18,10 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 
 	for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
 	{
+		correct = true;
+
 		encodedDesired.clear();
 		actualVector.clear();
-		correct = true;
 		inputLayer.clear();
 		outputLayer.clear();
 		hiddenLayers.clear();
@@ -49,36 +50,7 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 			encodedDesired.push_back(0);
 		}
 
-		// Calculated Values
-		leftNodes = params.NumberOfInputNodes + 1;
-		for (int hiddenCol = 0; hiddenCol < hiddenLayers.size(); hiddenCol++)
-		{
-			for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes; hiddenNodeIndex++)
-			{
-				for (int numLeftNodes = 0; numLeftNodes < leftNodes; numLeftNodes++)
-				{
-					calculatedValue = calculatedValue + (inputLayer[numLeftNodes].value * weights[hiddenCol][numLeftNodes][hiddenNodeIndex]);
-
-				}
-				hiddenLayers[hiddenCol][hiddenNodeIndex].value = hiddenLayers[hiddenCol][hiddenNodeIndex].Sigmoid(calculatedValue);
-				calculatedValue = 0;
-			}
-			leftNodes = params.NumberOfHiddenNodes;
-		}
-
-		int weightIndex = params.AdjustableLayerWeights - 1;
-		calculatedValue = 0;
-		leftNodes = params.NumberOfHiddenNodes + 1;
-		for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
-		{
-			for (int hiddenNodeIndex = 0; hiddenNodeIndex < leftNodes; hiddenNodeIndex++)
-			{
-				calculatedValue = calculatedValue + (hiddenLayers[hiddenLayers.size() - 1][hiddenNodeIndex].value * weights[weightIndex][hiddenNodeIndex][outputNodeIndex]);
-
-			}
-			outputLayer[outputNodeIndex].value = outputLayer[outputNodeIndex].Sigmoid(calculatedValue);
-			calculatedValue = 0;
-		}
+		ForwardPropagation(data, params);
 
 		// Check if we are correct
 		for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
@@ -121,6 +93,42 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 	cout << "Percentage Correct: " << (numberCorrect / data.RandRecords.size())*100.0 << "%" << endl;
 
 
+}
+
+void ANNTester::ForwardPropagation(CSVFileReader data, InputParameters params)
+{
+	double calculatedValue = 0;
+	int leftNodes = params.NumberOfInputNodes + 1;
+
+	// Calculated Values
+	for (int hiddenCol = 0; hiddenCol < hiddenLayers.size(); hiddenCol++)
+	{
+		for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes; hiddenNodeIndex++)
+		{
+			for (int LeftNodeIndex = 0; LeftNodeIndex < leftNodes; LeftNodeIndex++)
+			{
+				calculatedValue = calculatedValue + (inputLayer[LeftNodeIndex].value * weights[hiddenCol][LeftNodeIndex][hiddenNodeIndex]);
+
+			}
+			hiddenLayers[hiddenCol][hiddenNodeIndex].value = hiddenLayers[hiddenCol][hiddenNodeIndex].Sigmoid(calculatedValue);
+			calculatedValue = 0;
+		}
+		leftNodes = params.NumberOfHiddenNodes;
+	}
+
+	int weightIndex = params.AdjustableLayerWeights - 1;
+	calculatedValue = 0;
+	leftNodes = params.NumberOfHiddenNodes + 1;
+	for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
+	{
+		for (int hiddenNodeIndex = 0; hiddenNodeIndex < leftNodes; hiddenNodeIndex++)
+		{
+			calculatedValue = calculatedValue + (hiddenLayers[hiddenLayers.size() - 1][hiddenNodeIndex].value * weights[weightIndex][hiddenNodeIndex][outputNodeIndex]);
+
+		}
+		outputLayer[outputNodeIndex].value = outputLayer[outputNodeIndex].Sigmoid(calculatedValue);
+		calculatedValue = 0;
+	}
 }
 
 void ANNTester::GenerateOutputLayer(InputParameters params)
