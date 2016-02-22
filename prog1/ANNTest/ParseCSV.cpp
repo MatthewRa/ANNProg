@@ -27,7 +27,7 @@ int CSVFileReader::GetRows(string filename)
 	int rowCount = 0;
 	string row = "";
 
-	csvFile.open(filename);
+	csvFile.open("../" + filename);
 	if (!csvFile)
 	{
 		cout << "error opening csv file " << filename << endl;
@@ -55,7 +55,7 @@ void CSVFileReader::ReadDataFile(string filename)
 	
 
 	// open and error check file
-	csvFile.open(filename);
+	csvFile.open("../" + filename);
 	if (!csvFile)
 	{
 		cout << "error opening csv file " << filename << endl;
