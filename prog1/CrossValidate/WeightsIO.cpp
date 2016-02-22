@@ -5,7 +5,7 @@ void WeightsIO::readInWeights(vector<vector<vector<double>>> &weights, InputPara
 	// vector<vector<vector<double>>> weights;
 	ifstream inWeights;
 	int layer = 0; // current working layer 
-	int nodes = params.NumberOfInputNodes; // handle input to hidden nodes
+	int nodes = params.NumberOfInputNodes + 1; // handle input to hidden nodes
 	int hiddenlayers = params.AdjustableLayerWeights - 1; // number of hidden layers
 	double nodeValue = 0;
 	vector<double> valToBeInserted;
@@ -73,7 +73,7 @@ void WeightsIO::writeOutWeights(vector<vector<vector<double>>> &weights, InputPa
 	int layer = 0; // current working layer
 
 				   // open file and error check
-	outWeights.open(params.ANNWeightFile);
+	outWeights.open("../" + params.ANNWeightFile);
 	if (!outWeights)
 	{
 		cerr << "Error opening weights file" << endl;
