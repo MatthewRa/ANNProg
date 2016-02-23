@@ -1,6 +1,16 @@
 #include "Header.h"
 
-
+/**************************************************************************
+* Name:  main
+*
+* Params:  int argc - number of command line arguments
+*		   char *argv[] - 2d array holding each command line argument
+*
+* Description:  Like the ANNTrainer and ANNTester main functions, this 
+* houses the function calls for reading in the parameters as well as data.
+* Then it calls the cross validate method to test the weights generated in
+* ANNTrainer.
+**************************************************************************/
 int main(int argc, char *argv[])
 {
 	ANNCrossValidate crossValidate;

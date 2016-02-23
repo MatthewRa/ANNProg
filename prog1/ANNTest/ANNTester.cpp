@@ -1,5 +1,15 @@
 #include "Header.h"
 
+/**************************************************************************
+* Name:  TestNetwork
+*
+* Params: CSVFileReader data - input data from the PDSI
+*		  InputParameters params - List of parameters from the parameter file
+*
+* Description:  This function tests the network based on the weights generated
+* in ANNTrainer.  It does it by using the same algorithm used in the trainer
+* except it doesn't update weights.  
+**************************************************************************/
 void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 {
 	int leftNodes = params.NumberOfInputNodes + 1;
@@ -16,10 +26,12 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 
 	weightsReader.readInWeights(weights, params);
 
+	// Loops through each iteration of records
 	for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
 	{
 		correct = true;
 
+		// Clears each vector to prevent any unwanted data
 		encodedDesired.clear();
 		actualVector.clear();
 		inputLayer.clear();
@@ -50,6 +62,7 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 			encodedDesired.push_back(0);
 		}
 
+		// Runs the network forward propogation
 		ForwardPropagation(data, params);
 
 		// Check if we are correct
@@ -95,6 +108,16 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 
 }
 
+/**************************************************************************
+* Name:  ForwardPropagation
+*
+* Params: CSVFileReader data - input data from the PDSI
+*		  InputParameters params - List of parameters from the parameter file
+*
+* Description:  Uses the same forward propagation algorithm as the ANNTrainer
+* does not update weights however.  It calculates new values for each neuron
+* based on the weights generated in ANNTrainer.
+**************************************************************************/
 void ANNTester::ForwardPropagation(CSVFileReader data, InputParameters params)
 {
 	double calculatedValue = 0;
@@ -131,6 +154,14 @@ void ANNTester::ForwardPropagation(CSVFileReader data, InputParameters params)
 	}
 }
 
+/*************************************************************************
+* Name:  GenerateOutputLayer
+* Params:   InputParameters params - List of parameters from the parameter file
+*
+* Description:  Generates a list of neurons for the output layer and sets
+* default values for the attributes.
+*
+*************************************************************************/
 void ANNTester::GenerateOutputLayer(InputParameters params)
 {
 	for (int i = 0; i < params.NumberOfOutputNodes; i++)
@@ -143,7 +174,13 @@ void ANNTester::GenerateOutputLayer(InputParameters params)
 		outputLayer.push_back(outNeuron);
 	}
 }
-
+/*************************************************************************
+* Name:  GenerateHiddenLayers
+* Params: 	  InputParameters params - List of parameters from the parameter file
+*
+* Description:  Generates lists of neurons for each hidden layer of neurons
+* based on the parameters from the parameter file.
+*************************************************************************/
 void ANNTester::GenerateHiddenLayers(InputParameters params)
 {
 	for (int i = 0; i < (params.AdjustableLayerWeights - 1); i++)
@@ -171,6 +208,15 @@ void ANNTester::GenerateHiddenLayers(InputParameters params)
 	}
 }
 
+/*************************************************************************
+* Name:  GenerateInputLayer
+* Params: CSVFileReader data - input data from the PDSI
+*		  InputParameters params - List of parameters from the parameter file
+*
+* Description:  Generates the input layer of neurons based on the number
+* gathered from the parameter file.  Then it sets their initial values to the
+* normalized data points, read in from the data file.
+*************************************************************************/
 double ANNTester::GenerateInputLayer(CSVFileReader data, InputParameters params)
 {
 	static int randRecordIndex = 0;

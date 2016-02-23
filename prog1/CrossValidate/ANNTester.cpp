@@ -1,5 +1,6 @@
 #include "Header.h"
 
+
 int ANNTester::TestNetwork(CSVFileReader data, InputParameters params, int yearToTest)
 {
 	int leftNodes = params.NumberOfInputNodes + 1;
