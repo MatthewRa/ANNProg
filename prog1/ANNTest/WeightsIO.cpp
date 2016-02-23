@@ -73,7 +73,6 @@ Write out the  weights to the weights file to connect the nodes for testing
 */
 void WeightsIO::writeOutWeights(vector<vector<vector<double>>> &weights, InputParameters params)
 {
-	// vector<vector<vector<double>>> weights;
 	ofstream outWeights;
 	int layer = 0; // current working layer
 

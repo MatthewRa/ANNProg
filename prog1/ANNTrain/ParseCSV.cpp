@@ -1,12 +1,20 @@
 #include "Header.h"
 
+/*
+RandomizeValues takes the records read in from the csv file and put them into
+a vector in a random order.
+*/
 void CSVFileReader::RandomizeValues(InputParameters params)
 {
-	RandRecords = NormalizedRecords;
+	RandRecords = NormalizedRecords; // set equal to normalized vector
 
-	int PDSIMonthsNeeded =  ceil(params.MonthsOfPDSIData / 12.0);
+									 // take the ceiling of the months needed for the ANN
+	int PDSIMonthsNeeded = ceil(params.MonthsOfPDSIData / 12.0);
+	// get burned years needed
 	int BAYearsNeeded = params.BurnedAcreageYears;
 
+
+	// drop the data that doesn't have enough data to be processed in the csv file
 	if (PDSIMonthsNeeded > BAYearsNeeded)
 	{
 		RandRecords.erase(RandRecords.begin(), RandRecords.begin() + PDSIMonthsNeeded);
@@ -17,16 +25,20 @@ void CSVFileReader::RandomizeValues(InputParameters params)
 	}
 
 	srand(time(0));
-
+	// shuffle the records in randRecords to randomize data
 	random_shuffle(begin(RandRecords), end(RandRecords));
 }
 
+/*
+GetRows gets the number of rows from the csv file
+*/
 int CSVFileReader::GetRows(string filename)
 {
 	ifstream csvFile;
 	int rowCount = 0;
 	string row = "";
 
+	// test file open
 	csvFile.open("../" + filename);
 	if (!csvFile)
 	{
@@ -34,14 +46,18 @@ int CSVFileReader::GetRows(string filename)
 		return -1;
 	}
 
-	while (getline(csvFile,row))
+	while (getline(csvFile, row))
 	{
+		// for each row increment a row counter
 		rowCount++;
 	}
 
 	return rowCount - 2; // drop title and headings rows
 }
 
+/*
+reads in the csv values to the records array. Not used in testing
+*/
 void CSVFileReader::ReadDataFile(string filename)
 {
 	ifstream csvFile;
@@ -52,7 +68,7 @@ void CSVFileReader::ReadDataFile(string filename)
 	double minPDSI = 0;
 	double maxPDSI = 0;
 	bool firstValue = true;
-	
+
 
 	// open and error check file
 	csvFile.open("../" + filename);
@@ -71,11 +87,11 @@ void CSVFileReader::ReadDataFile(string filename)
 
 	getline(csvFile, currentRow); // get heading for data
 
-	// stringstream allows for easy tokenizing of rows in csv file
+								  // stringstream allows for easy tokenizing of rows in csv file
 	stringstream streamcurrentRow(currentRow);
 	string insert; // storage for the results as string is tokenized
 
-	// As each heading is found push onto heading vector
+				   // As each heading is found push onto heading vector
 	while (getline(streamcurrentRow, insert, ','))
 	{
 		headings.push_back(insert);
@@ -87,7 +103,7 @@ void CSVFileReader::ReadDataFile(string filename)
 	for (int row = 0; row < csvRows; row++)
 	{
 		// clear the vector or vector maintains previous iteration as well 
-		toBeInserted.clear(); 
+		toBeInserted.clear();
 		getline(csvFile, currentRow);
 
 		// set stringstream to new row
@@ -146,6 +162,9 @@ void CSVFileReader::ReadDataFile(string filename)
 	csvFile.close();
 }
 
+/*
+FindMinMax finds the min and max burned acres in records
+*/
 void CSVFileReader::FindMinMax(double temp2, double &min, double &max)
 {
 	if (temp2 <= min)

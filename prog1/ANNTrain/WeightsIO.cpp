@@ -1,20 +1,22 @@
 #include "Header.h"
 
+/*
+Reads in the weights from the weights file to connect the nodes for testing
+*/
 void WeightsIO::readInWeights(vector<vector<vector<double>>> &weights, InputParameters params)
 {
-	// vector<vector<vector<double>>> weights;
 	ifstream inWeights;
 	int layer = 0; // current working layer 
 	int nodes = params.NumberOfInputNodes + 1; // handle input to hidden nodes
 	int hiddenlayers = params.AdjustableLayerWeights - 1; // number of hidden layers
 	double nodeValue = 0;
-	vector<double> valToBeInserted;
-	vector<vector<double>> nodeToBeInserted;
+	vector<double> valToBeInserted; // stores weight values for a node to another node  
+	vector<vector<double>> nodeToBeInserted; // stores node in layer
 
-	// empty the vector for new read
+											 // empty the vector for new read
 	weights.clear();
 	// open and error check file
-	inWeights.open(params.ANNWeightFile);
+	inWeights.open("../" + params.ANNWeightFile);
 	if (!inWeights)
 	{
 		cerr << "Error opening weights file" << endl;
@@ -26,7 +28,7 @@ void WeightsIO::readInWeights(vector<vector<vector<double>>> &weights, InputPara
 	{
 		for (int startNode = 0; startNode < nodes; startNode++)
 		{
-			for (int endNode = 0; endNode < params.NumberOfHiddenNodes + 1; endNode++)
+			for (int endNode = 0; endNode < params.NumberOfHiddenNodes; endNode++)
 			{
 				//get weight value and push on to the vector holding the weights
 				// connected to the current node
@@ -66,9 +68,12 @@ void WeightsIO::readInWeights(vector<vector<vector<double>>> &weights, InputPara
 
 }
 
+/*
+Write out the  weights to the weights file to connect the nodes for testing
+*/
 void WeightsIO::writeOutWeights(vector<vector<vector<double>>> &weights, InputParameters params)
 {
-	// vector<vector<vector<double>>> weights;
+
 	ofstream outWeights;
 	int layer = 0; // current working layer
 

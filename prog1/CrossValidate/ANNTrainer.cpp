@@ -10,6 +10,7 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	double ksum = 0;
 	double psum = 0;
 	vector<int> encodedDesired;
+	srand(time(0));
 
 	double squaredError = 0;
 	double RMSE = 0;
@@ -22,7 +23,9 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	for (int epochIndex = 1; epochIndex < params.TrainingEpochs+1; epochIndex++)
 	{
 		squaredError = 0;
-		data.RandomizeValues(params);
+
+		random_shuffle(begin(data.RandRecords), end(data.RandRecords));
+
 		psum = 0;
 
 		for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)

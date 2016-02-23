@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-	ANNTrainer trainer;
+	ANNCrossValidate crossValidate;
 	InputParameters inputParams;
 	CSVFileReader csvFileReader;
 	ParameterFileReader paramFileReader;
@@ -35,9 +35,8 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	trainer.TrainNetwork(csvFileReader, inputParams);
-
-	weightWriter.writeOutWeights(trainer.weights ,inputParams);
+	// runs cross validation on a given csv file that matches formats
+	crossValidate.CrossValidate(csvFileReader, inputParams);
 
 	return 0;
 }

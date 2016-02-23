@@ -1,5 +1,20 @@
 #include "Header.h"
 
+
+/*************************************************************************
+* Name:  TrainNetwork
+* Params: CSVFileReader data - input data from the PDSI
+*		  InputParameters params - List of parameters from the parameter file
+* 
+* Description:  This function houses the main loops for training the ANN.
+* This means that it will loop through the number of epochs, records, and
+* each layer of weights to train the weights.  At the end of each epoch we
+* calculate the root mean squared error (RMSE) to see how well our ANN is 
+* doing.
+*
+* To-do:
+*		- implement the momentum value in updating weights
+*************************************************************************/
 void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 {
 	int leftNodes = params.NumberOfInputNodes + 1;
@@ -18,15 +33,19 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	//GenerateOutputLayer(params);
 	InitializeWeights(params);
 
-
+	// Beginning of the Epoch loop
 	for (int epochIndex = 1; epochIndex < params.TrainingEpochs+1; epochIndex++)
 	{
 		squaredError = 0;
 		data.RandomizeValues(params);
 		psum = 0;
 
+		// Beginning of loop to go through each record
 		for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
 		{
+			// Layers need to be cleared in order to test different years
+			// for some reason, it would loop through the same year if we 
+			// dont have it there
 			inputLayer.clear();
 			outputLayer.clear();
 			hiddenLayers.clear();
@@ -37,19 +56,19 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 			GenerateOutputLayer(params);
 
 			// Encode Desired
-			if (desired < params.FireSeverityLowCutoff)
+			if (desired < params.FireSeverityLowCutoff) // Low fire severity = 100
 			{
 				encodedDesired.push_back(1);
 				encodedDesired.push_back(0);
 				encodedDesired.push_back(0);
 			}
-			else if (desired > params.FireSeverityHighCutoff)
+			else if (desired > params.FireSeverityHighCutoff) // High fire severity = 001
 			{
 				encodedDesired.push_back(0);
 				encodedDesired.push_back(0);
 				encodedDesired.push_back(1);
 			}
-			else
+			else  // Medium fire severity = 010
 			{
 				encodedDesired.push_back(0);
 				encodedDesired.push_back(1);
@@ -67,13 +86,14 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 
 		}
 
+		// Calculate the root mean squared error for the current epoch
 		RMSE = sqrt(psum / (params.NumberOfOutputNodes * data.RandRecords.size()));
 		if (RMSE < params.ErrorThreshold)
 		{
 			cout << "Epoch: " << epochIndex << ", RootMeanSquaredError: " << RMSE << endl;
 			break;
 		}
-
+		// Print out RMSE every 10 epochs
 		if (epochIndex % 10 == 0)
 		{
 			cout << "Epoch: " << epochIndex <<  ", RootMeanSquaredError: " << RMSE << endl;
@@ -81,27 +101,48 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 	}
 }
 
+/*************************************************************************
+* Name:  UpdateWeights
+* Params: CSVFileReader data - input data from the PDSI
+*		  InputParameters params - List of parameters from the parameter file
+*
+* Description:  This function essentially just calculates the new weights for 
+* each layer of weights.  Then it writes over the old weights in our weights.wts
+* file.  The weights file itself houses the 3d vector of doubles that are the 
+* weights to our ANN.  The weights vector is indexed by: 
+*
+* weights[i][j][k] - the weight in layer 'i' from node 'j' to node 'k'
+*					 i = layer of weights
+*					 j = left node
+*					 k = right node
+*
+* To-do:
+*		- implement the momentum value in updating weights
+*************************************************************************/
 void ANNTrainer::UpdateWeights(CSVFileReader data, InputParameters params)
 {
 	double newWeight = 0;
 
 	// Updating Weights
-	for (int layer = params.AdjustableLayerWeights - 1; layer >= 0; layer--)
+	for (int layer = params.AdjustableLayerWeights - 1; layer >= 0; layer--) // For the number hidden layers
 	{
-		for (int leftNodes = 0; leftNodes < weights[layer].size(); leftNodes++)
+		for (int leftNodes = 0; leftNodes < weights[layer].size(); leftNodes++) // For each node on the left side of weights
 		{
-			for (int rightNode = 0; rightNode < weights[layer][leftNodes].size(); rightNode++)
+			for (int rightNode = 0; rightNode < weights[layer][leftNodes].size(); rightNode++) // For each node on the right side
 			{
+				// If the layer is from the input layer to the first hidden layer
 				if (layer == 0)
 				{
 					newWeight = weights[layer][leftNodes][rightNode] - params.LearnRate * hiddenLayers[0][rightNode].deltaError * inputLayer[leftNodes].value;
 					weights[layer][leftNodes][rightNode] = newWeight;
 				}
+				// If it a hidden layer to another hidden layer
 				else if (layer != params.AdjustableLayerWeights - 1)
 				{
 					newWeight = weights[layer][leftNodes][rightNode] - params.LearnRate * hiddenLayers[layer + 1][rightNode].deltaError * hiddenLayers[layer - 1][leftNodes].value;
 					weights[layer][leftNodes][rightNode] = newWeight;
 				}
+				// If it is the last hidden layer to the output layer
 				else
 				{
 					newWeight = weights[layer][leftNodes][rightNode] - params.LearnRate * outputLayer[rightNode].deltaError * hiddenLayers[layer - 1][leftNodes].value;
@@ -112,12 +153,23 @@ void ANNTrainer::UpdateWeights(CSVFileReader data, InputParameters params)
 	}
 }
 
+/*************************************************************************
+* Name:  ForwardPropagation
+* Params: CSVFileReader data - input data from the PDSI
+*		  InputParameters params - List of parameters from the parameter file
+*
+* Description:  The purpose of this function is pretty self explanatory.  It
+* takes the input data, throws it into the input layer of the ANN and then 
+* goes through each layer summing up the input weights and values and then 
+* pushing them to the next layer.
+*
+*************************************************************************/
 void ANNTrainer::ForwardPropagation(CSVFileReader data, InputParameters params)
 {
 	double calculatedValue = 0;
 	int leftNodes = params.NumberOfInputNodes + 1;
 
-	// Calculated Values
+	// Calculates values for each neuron in the first hidden layer
 	for (int hiddenCol = 0; hiddenCol < hiddenLayers.size(); hiddenCol++)
 	{
 		for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes; hiddenNodeIndex++)
@@ -136,6 +188,8 @@ void ANNTrainer::ForwardPropagation(CSVFileReader data, InputParameters params)
 	int weightIndex = params.AdjustableLayerWeights - 1;
 	calculatedValue = 0;
 	leftNodes = params.NumberOfHiddenNodes + 1;
+
+	// Calculates input values for each neuron in the output layer
 	for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
 	{
 		for (int hiddenNodeIndex = 0; hiddenNodeIndex < leftNodes; hiddenNodeIndex++)
@@ -147,7 +201,17 @@ void ANNTrainer::ForwardPropagation(CSVFileReader data, InputParameters params)
 		calculatedValue = 0;
 	}
 }
-
+/*************************************************************************
+* Name:  CalculateDeltaError
+* Params: CSVFileReader data			- input data from the PDSI
+*		  InputParameters params		- List of parameters from the parameter file
+*		  double &psum					- used in the RMSE calculation, the sum of SE's
+*		  vector<int> encodedDesired    - the low, medium, or high encoded earlier as 100, 010, 001
+*
+* Description:  This function calculates the error at the end of each training epoch.  The psum is
+* passed by reference because it is used to calculate the RMSE at the end of each epoch.
+*
+*************************************************************************/
 void ANNTrainer::CalculateDeltaError(CSVFileReader data, InputParameters params, double &psum, vector<int> encodedDesired)
 {
 	double ksum = 0;
@@ -166,6 +230,7 @@ void ANNTrainer::CalculateDeltaError(CSVFileReader data, InputParameters params,
 	}
 	psum += ksum;
 
+	// If there are more than one hidden layer of neurons
 	if (hiddenLayers.size() > 1)
 	{
 		for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes + 1; hiddenNodeIndex++)
@@ -180,6 +245,7 @@ void ANNTrainer::CalculateDeltaError(CSVFileReader data, InputParameters params,
 		}
 	}
 
+	// Calculates error for the last hidden layer to the output layer
 	for (int hiddenNodeIndex = 0; hiddenNodeIndex < params.NumberOfHiddenNodes; hiddenNodeIndex++)
 	{
 		for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
@@ -193,6 +259,14 @@ void ANNTrainer::CalculateDeltaError(CSVFileReader data, InputParameters params,
 	}
 }
 
+/*************************************************************************
+* Name:  GenerateOutputLayer
+* Params:   InputParameters params - List of parameters from the parameter file
+*
+* Description:  Generates a list of neurons for the output layer and sets 
+* default values for the attributes.
+*
+*************************************************************************/
 void ANNTrainer::GenerateOutputLayer(InputParameters params)
 {
 	for (int i = 0; i < params.NumberOfOutputNodes; i++)
@@ -206,6 +280,14 @@ void ANNTrainer::GenerateOutputLayer(InputParameters params)
 	}
 }
 
+/*************************************************************************
+* Name:  InitializeWeights
+* Params:   InputParameters params - List of parameters from the parameter file
+*
+* Description:  Generates a 3d vector of random doubles between -1 and 1 
+* based on the number of AdjustableLayerWeights from the parameter file, as
+* well as how many neurons in each layer.
+*************************************************************************/
 void ANNTrainer::InitializeWeights(InputParameters params)
 {
 	vector<vector<double>> middleVector;
@@ -237,6 +319,13 @@ void ANNTrainer::InitializeWeights(InputParameters params)
 
 }
 
+/*************************************************************************
+* Name:  GenerateHiddenLayers
+* Params: 	  InputParameters params - List of parameters from the parameter file
+*
+* Description:  Generates lists of neurons for each hidden layer of neurons
+* based on the parameters from the parameter file.
+*************************************************************************/
 void ANNTrainer::GenerateHiddenLayers(InputParameters params)
 {
 	for (int i = 0; i < (params.AdjustableLayerWeights - 1); i++)
@@ -263,7 +352,15 @@ void ANNTrainer::GenerateHiddenLayers(InputParameters params)
 		hiddenLayers.push_back(hiddenLayerHolder);
 	}
 }
-
+/*************************************************************************
+* Name:  GenerateInputLayer
+* Params: CSVFileReader data - input data from the PDSI
+*		  InputParameters params - List of parameters from the parameter file
+*
+* Description:  Generates the input layer of neurons based on the number
+* gathered from the parameter file.  Then it sets their initial values to the
+* normalized data points, read in from the data file. 
+*************************************************************************/
 double ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params)
 {
 	static int randRecordIndex = 0;

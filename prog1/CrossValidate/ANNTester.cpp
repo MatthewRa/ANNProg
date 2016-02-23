@@ -1,6 +1,6 @@
 #include "Header.h"
 
-void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
+int ANNTester::TestNetwork(CSVFileReader data, InputParameters params, int yearToTest)
 {
 	int leftNodes = params.NumberOfInputNodes + 1;
 	WeightsIO weightsReader;
@@ -16,83 +16,78 @@ void ANNTester::TestNetwork(CSVFileReader data, InputParameters params)
 
 	weightsReader.readInWeights(weights, params);
 
-	for (int recordIndex = 0; recordIndex < data.RandRecords.size(); recordIndex++)
+	correct = true;
+
+	encodedDesired.clear();
+	actualVector.clear();
+	inputLayer.clear();
+	outputLayer.clear();
+	hiddenLayers.clear();
+
+	desired = GenerateInputLayer(data, params, yearToTest);
+	GenerateHiddenLayers(params);
+	GenerateOutputLayer(params);
+
+	// Encode Desired
+	if (desired < params.FireSeverityLowCutoff)
 	{
-		correct = true;
-
-		encodedDesired.clear();
-		actualVector.clear();
-		inputLayer.clear();
-		outputLayer.clear();
-		hiddenLayers.clear();
-
-		desired = GenerateInputLayer(data, params);
-		GenerateHiddenLayers(params);
-		GenerateOutputLayer(params);
-
-		// Encode Desired
-		if (desired < params.FireSeverityLowCutoff)
-		{
-			encodedDesired.push_back(1);
-			encodedDesired.push_back(0);
-			encodedDesired.push_back(0);
-		}
-		else if (desired > params.FireSeverityHighCutoff)
-		{
-			encodedDesired.push_back(0);
-			encodedDesired.push_back(0);
-			encodedDesired.push_back(1);
-		}
-		else
-		{
-			encodedDesired.push_back(0);
-			encodedDesired.push_back(1);
-			encodedDesired.push_back(0);
-		}
-
-		ForwardPropagation(data, params);
-
-		// Check if we are correct
-		for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
-		{
-			double actual = outputLayer[outputNodeIndex].value;
-
-			if (actual < .5)
-			{
-				actualVector.push_back(0);
-			}
-			else
-			{
-				actualVector.push_back(1);
-			}
-		}
-
-		cout << "Desired: " << encodedDesired[0] << encodedDesired[1] << encodedDesired[2]
-			 << " Actual: " << actualVector[0] << actualVector[1] << actualVector[2];
-
-		for (int index = 0; index < actualVector.size(); index++)
-		{
-			if (encodedDesired[index] != actualVector[index])
-			{
-				correct = false;
-			}
-		}
-
-		if (!correct)
-		{
-			cout << " *" << endl;
-		}
-		else
-		{
-			numberCorrect++;
-			cout << endl;
-		}
-
+		encodedDesired.push_back(1);
+		encodedDesired.push_back(0);
+		encodedDesired.push_back(0);
+	}
+	else if (desired > params.FireSeverityHighCutoff)
+	{
+		encodedDesired.push_back(0);
+		encodedDesired.push_back(0);
+		encodedDesired.push_back(1);
+	}
+	else
+	{
+		encodedDesired.push_back(0);
+		encodedDesired.push_back(1);
+		encodedDesired.push_back(0);
 	}
 
-	cout << "Percentage Correct: " << (numberCorrect / data.RandRecords.size())*100.0 << "%" << endl;
+	ForwardPropagation(data, params);
 
+	// Check if we are correct
+	for (int outputNodeIndex = 0; outputNodeIndex < params.NumberOfOutputNodes; outputNodeIndex++)
+	{
+		double actual = outputLayer[outputNodeIndex].value;
 
+		if (actual < .5)
+		{
+			actualVector.push_back(0);
+		}
+		else
+		{
+			actualVector.push_back(1);
+		}
+	}
+
+	cout << "\nDesired: " << encodedDesired[0] << encodedDesired[1] << encodedDesired[2]
+		<< " Actual: " << actualVector[0] << actualVector[1] << actualVector[2];
+
+	for (int index = 0; index < actualVector.size(); index++)
+	{
+		if (encodedDesired[index] != actualVector[index])
+		{
+			correct = false;
+		}
+	}
+
+	if (!correct)
+	{
+		cout << " *" << endl;
+	}
+	else
+	{
+		numberCorrect++;
+		cout << endl;
+	}
+	cout << "Percentage Correct: " << numberCorrect *100.0 << "%\n" << endl;
+
+	return numberCorrect;
 }
 
 void ANNTester::ForwardPropagation(CSVFileReader data, InputParameters params)
@@ -171,24 +166,17 @@ void ANNTester::GenerateHiddenLayers(InputParameters params)
 	}
 }
 
-double ANNTester::GenerateInputLayer(CSVFileReader data, InputParameters params)
+double ANNTester::GenerateInputLayer(CSVFileReader data, InputParameters params, int yearToTest)
 {
-	static int randRecordIndex = 0;
 	int recordIndex = 0;
 	double retVal = 0;
 
-	if (randRecordIndex == data.RandRecords.size())
-	{
-		randRecordIndex = 0;
-	}
-
-	int year = data.RandRecords[randRecordIndex][0];
 	int PDSIYears = ceil(params.MonthsOfPDSIData / 12.0);
 	int BAYears = params.BurnedAcreageYears;
 
 	for (recordIndex = 0; recordIndex < data.Records.size(); recordIndex++)
 	{
-		if (data.Records[recordIndex][0] == year)
+		if (data.Records[recordIndex][0] == yearToTest)
 		{
 			retVal = data.Records[recordIndex][1];
 			break;
@@ -235,8 +223,6 @@ double ANNTester::GenerateInputLayer(CSVFileReader data, InputParameters params)
 	biasNode.deltaError = 0;
 
 	inputLayer.push_back(biasNode);
-
-	randRecordIndex++;
 
 	return retVal;
 }

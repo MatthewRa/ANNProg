@@ -35,8 +35,10 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	// trains the network and builds final weights list for testing
 	trainer.TrainNetwork(csvFileReader, inputParams);
 
+	// writes out final weights list to weight.wts
 	weightWriter.writeOutWeights(trainer.weights ,inputParams);
 
 	return 0;

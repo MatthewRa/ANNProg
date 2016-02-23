@@ -1,7 +1,7 @@
 #include "Header.h"
 
 /*
-    RandomizeValues takes the records read in from the csv file and put them into
+	RandomizeValues takes the records read in from the csv file and put them into
 	a vector in a random order.
 */
 void CSVFileReader::RandomizeValues(InputParameters params)
