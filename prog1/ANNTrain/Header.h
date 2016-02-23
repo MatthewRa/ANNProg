@@ -80,7 +80,7 @@ public:
 };
 
 /*  Neuron creates the nodes in the ANN. Each node contains the value and delta
-error for that node.
+error for that node. As well as methods for calculating sigmoid and sigmoid prime.
 
 */
 class Neuron
@@ -93,6 +93,10 @@ public:
 	double SigmoidPrime(double x); // takes sigmoid value and runs x(1-x)
 };
 
+/*
+This class stores the different network layers as well as weights. This class also contains methods
+for training an artifical neural network.
+*/
 class ANNTrainer
 {
 	public:
