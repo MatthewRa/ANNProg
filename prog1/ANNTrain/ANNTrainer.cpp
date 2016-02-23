@@ -398,6 +398,7 @@ double ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params
 		numBAYears--;
 	}
 
+	// Generates number of input neurons for the number of PDSI months
 	int numPDSIMonths = params.MonthsOfPDSIData;
 	int j = 4;
 	for (int i = recordIndex; numPDSIMonths != 0;)
@@ -419,6 +420,7 @@ double ANNTrainer::GenerateInputLayer(CSVFileReader data, InputParameters params
 		j--;
 	}
 
+	// Generates the bias node which will be pushed onto the front of the list
 	Neuron biasNode;
 
 	biasNode.value = 1;

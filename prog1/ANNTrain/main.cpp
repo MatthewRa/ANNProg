@@ -1,6 +1,17 @@
 #include "Header.h"
 
-
+/**************************************************************************
+* Name:  main
+*
+* Params:  int argc - number of command line arguments
+*		   char *argv[] - 2d array holding each command line argument
+*
+* Description:  Main function where the trainer class is instantiated and 
+* the training method called.  The parameter file is also read in and stored 
+* into a class to be passed into the ANN trainer.  As well as the parameter
+* file being read in, the PDSI data file is also read in and stored.  After 
+* the trainer is run main also writes out the weights to the weights file. 
+**************************************************************************/
 int main(int argc, char *argv[])
 {
 	ANNTrainer trainer;
@@ -19,7 +30,7 @@ int main(int argc, char *argv[])
 	{
 		parameterFileName = string(argv[1]);
 	}
-
+	// Read in parameters from parameter file
 	inputParams = paramFileReader.ParseParameterFile(parameterFileName);
 
 	// Read in data from csv file to a 2D vector and normalizes data
