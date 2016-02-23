@@ -17,6 +17,7 @@ void ANNTrainer::TrainNetwork(CSVFileReader data, InputParameters params)
 
 	//GenerateHiddenLayers(params);
 	//GenerateOutputLayer(params);
+	weights.clear();
 	InitializeWeights(params);
 
 
